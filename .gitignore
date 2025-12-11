@@ -36,11 +36,12 @@ out/
 .clangd/
 compile_commands.json
 
-# CMake
+# CMake (when you eventually use it)
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-Makefile
+# Note: Don't ignore hand-written Makefile - only CMake-generated ones
+# If using CMake, it generates Makefiles in build/ which is already ignored
 
 # Debug files
 *.dSYM/
