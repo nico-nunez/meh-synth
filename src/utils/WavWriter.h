@@ -3,10 +3,10 @@
 #include <string_view>
 #include <vector>
 
-#ifndef MY_UTILS_H
-#define MY_UTILS_H
+#ifndef WAV_WRITER_H
+#define WAV_WRITER_H
 
-namespace audioutils {
+namespace WavWriter {
 // Create WAV file
 std::ofstream createWavFile(const std::string &filename = "output.wav");
 
@@ -23,12 +23,5 @@ void writeInt16(std::ofstream &file, int16_t value);
 void writeWavMetadata(std::ofstream &file, int32_t numSamples,
                       int32_t sampleRate);
 
-// Calculate Hertz value for desired note base on semitones away from A4
-double getHertzFromSemitoneOffset(int semitones);
-
-// Generate sine values for WAV file
-void generateSineValues(std::vector<int16_t> &samples, double frequency,
-                        const int duration, const int sampleRate);
-
-} // namespace audioutils
+} // namespace WavWriter
 #endif

@@ -1,4 +1,6 @@
-#include "myutils.h"
+#include "utils/SineUtils.h"
+#include "utils/WavWriter.h"
+
 #include <cassert>
 #include <climits>
 #include <cstddef>
@@ -11,12 +13,12 @@ int main() {
   // Audio parameters
   const int SAMPLE_RATE = 44100;  // CD quality: 44,100 samples per second
   const int DURATION_SECONDS = 2; // Length of audio
-                                  //
+
   // Generate 3 notes(hz) -> C4, E4-flat, G4 (Cminor triad)
   std::vector<double> notesToGenerate{
-      audioutils::getHertzFromSemitoneOffset(-9),
-      audioutils::getHertzFromSemitoneOffset(-6),
-      audioutils::getHertzFromSemitoneOffset(-2)};
+      SineUtils::getHertzFromSemitoneOffset(-9),
+      SineUtils::getHertzFromSemitoneOffset(-6),
+      SineUtils::getHertzFromSemitoneOffset(-2)};
 
   assert(notesToGenerate.size() <= INT_MAX);
 
@@ -31,11 +33,11 @@ int main() {
   assert(TOTAL_SAMPLES > 0);
   samples.reserve(static_cast<size_t>(TOTAL_SAMPLES));
 
-  std::ofstream wavFile{audioutils::createWavFile()};
+  std::ofstream wavFile{WavWriter::createWavFile()};
 
   for (auto frequency : notesToGenerate)
-    audioutils::generateSineValues(samples, frequency, DURATION_SECONDS,
-                                   SAMPLE_RATE);
+    SineUtils::generateSineValues(samples, frequency, DURATION_SECONDS,
+                                  SAMPLE_RATE);
 
   if (!wavFile) {
     std::cerr << "Error: Could not create output.wav\n";
@@ -44,18 +46,18 @@ int main() {
 
   std::cout << "Writing WAV file...\n";
 
-  audioutils::writeWavMetadata(wavFile, TOTAL_SAMPLES, SAMPLE_RATE);
+  WavWriter::writeWavMetadata(wavFile, TOTAL_SAMPLES, SAMPLE_RATE);
 
   // --- DATA CHUNK ---
   // Contains the actual audio samples
-  audioutils::writeString(wavFile, "data", 4);
+  WavWriter::writeString(wavFile, "data", 4);
 
   // Data chunk size (number of samples * bytes per sample)
-  audioutils::writeInt32(wavFile, TOTAL_SAMPLES * 2);
+  WavWriter::writeInt32(wavFile, TOTAL_SAMPLES * 2);
 
   // Write all the audio samples
   for (auto sample : samples) {
-    audioutils::writeInt16(wavFile, sample);
+    WavWriter::writeInt16(wavFile, sample);
   }
 
   wavFile.close();
