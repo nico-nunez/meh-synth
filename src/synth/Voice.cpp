@@ -2,8 +2,8 @@
 #include <cmath>
 
 namespace {
-// Create constanst for phase wrapping comparison
-// to avoid multiplication operation on every increment
+// Create constant for phase wrapping comparison
+// Avoids multiplication operation on every increment
 constexpr float TWO_PI = 2 * static_cast<float>(M_PI);
 } // namespace
 
@@ -20,7 +20,6 @@ void Voice::setFrequency(float freq) {
   m_frequency = freq;
   calculatePhaseIncrement();
 }
-
 float Voice::getFrequency() const { return m_frequency; }
 
 // Change in sample rate requires recalculation of phase increment
@@ -31,9 +30,9 @@ void Voice::setSampleRate(float sampleRate) {
 }
 float Voice::getSampleRate() const { return m_sampleRate; }
 
-// Calculated in advance and used to increment the phase each step.
-// More efficient than time-based calculation each step.
-// Introduces drift due to float percision add operations (neglibile)
+// Calculate in advance in order to increment the phase each step.
+// More efficient than time-based calculation on every increment.
+// Introduces (neglibile) drift due to continous add operations using float
 void Voice::calculatePhaseIncrement() {
   m_phaseIncrement = TWO_PI * m_frequency / m_sampleRate;
 }
