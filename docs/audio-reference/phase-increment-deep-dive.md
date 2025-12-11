@@ -2,6 +2,17 @@
 
 Understanding how phase increment works and why it's the standard for real-time audio.
 
+## Table of Contents
+- [What is Phase?](#what-is-phase)
+- [What is Phase Increment?](#what-is-phase-increment)
+- [Performance Comparison](#performance-comparison)
+- [Key Insight](#key-insight)
+- [The Trade-off](#the-trade-off)
+- [Offline vs Real-time](#offline-vs-real-time)
+- [Phase Wrapping](#phase-wrapping)
+- [Float vs Double Precision](#float-vs-double-precision)
+- [Bottom Line](#bottom-line)
+
 ## What is Phase?
 
 **Phase** = your current position in the wave cycle (0 to 2π radians = one complete cycle)
@@ -124,17 +135,69 @@ void processAudio(float* buffer, int bufferSize) {  // bufferSize typically 512
 
 ## Phase Wrapping
 
-Since phase accumulates indefinitely, wrap it to prevent overflow:
+### Why is Phase Wrapping Necessary?
+
+**The problem:** Phase accumulates indefinitely as long as a note plays. Without wrapping, the phase value grows unbounded:
+
+```cpp
+// Without wrapping - phase keeps growing
+phase += phaseIncrement;  // 0.0628
+phase += phaseIncrement;  // 0.1256
+phase += phaseIncrement;  // 0.1884
+// ... after 100 samples: 6.28 (one full cycle)
+// ... after 1000 samples: 62.8
+// ... after 1 minute at 44.1kHz: 166,320 radians!
+```
+
+**Why this is bad:**
+
+1. **Float precision degradation** - As the number gets larger, floats lose precision for small increments
+   - At phase = 10, you have ~7 significant digits
+   - At phase = 100,000, you're losing precision on the fractional part
+   - Eventually `phase += phaseIncrement` stops changing phase at all!
+
+2. **Sine function doesn't care about full rotations** - `sin(0)`, `sin(2π)`, `sin(4π)` all equal the same value
+   - Keeping phase between 0 and 2π gives the same sine output
+   - No audible difference, just wasted precision
+
+3. **Potential overflow** - While rare with floats, extremely long-running oscillators could theoretically overflow
+
+### The Solution
+
+Wrap phase back to the [0, 2π) range whenever it exceeds 2π:
 
 ```cpp
 phase += phaseIncrement;
 if (phase >= 2.0 * M_PI) {
-    phase -= 2.0 * M_PI;
+    phase -= 2.0 * M_PI;  // Subtract one full rotation
+}
+```
+
+This keeps phase in a tight range where float precision is best, and sine values are identical.
+
+**Performance note:** Use a constant instead of computing `2.0 * M_PI` every sample:
+
+```cpp
+// At the top of your .cpp file:
+namespace {
+  constexpr float TWO_PI = 2.0f * M_PI;  // Computed at compile-time
 }
 
-// Or using fmod (slightly slower):
+// In your increment function:
+phase += phaseIncrement;
+if (phase >= TWO_PI) {
+    phase -= TWO_PI;
+}
+```
+
+### Alternative: fmod (slower, but handles larger jumps)
+
+```cpp
+// Handles cases where phaseIncrement might be > 2π
 phase = fmod(phase + phaseIncrement, 2.0 * M_PI);
 ```
+
+Use the if-statement approach for normal cases - it's faster and clearer.
 
 ## Float vs Double Precision
 
