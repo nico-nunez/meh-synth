@@ -66,11 +66,11 @@ constexpr float b = getValue();  // ✗ ERROR - must be computable at compile-ti
 An **anonymous namespace** limits visibility to the current file only:
 
 ```cpp
-// Voice.cpp
+// Oscillator.cpp
 namespace {
-  // These are ONLY visible in Voice.cpp
+  // These are ONLY visible in Oscillator.cpp
   constexpr float TWO_PI = 2.0f * M_PI;
-  constexpr int MAX_VOICES = 128;
+  constexpr int MAX_OSCILLATORS = 128;
 
   float helperFunction(float x) {
     return x * TWO_PI;
@@ -78,7 +78,7 @@ namespace {
 }
 
 namespace Synth {
-  void Voice::incrementPhase() {
+  void Oscillator::incrementPhase() {
     m_phase += m_phaseIncrement;
     if (m_phase >= TWO_PI) {  // Can use TWO_PI here
       m_phase -= TWO_PI;
@@ -91,9 +91,9 @@ namespace Synth {
 
 **1. Avoid name collisions:**
 ```cpp
-// Voice.cpp
+// Oscillator.cpp
 namespace {
-  constexpr float TWO_PI = 6.28318f;  // Only in Voice.cpp
+  constexpr float TWO_PI = 6.28318f;  // Only in Oscillator.cpp
 }
 
 // Filter.cpp
@@ -130,7 +130,7 @@ namespace {
 
 **Never in header files:**
 ```cpp
-// Voice.h - DON'T DO THIS
+// Oscillator.h - DON'T DO THIS
 namespace {
   constexpr float TWO_PI = 6.28318f;  // ✗ Each .cpp that includes this gets its own copy!
 }
@@ -138,7 +138,7 @@ namespace {
 
 If you need a constant in a header, use:
 ```cpp
-// Voice.h - Do this instead
+// Oscillator.h - Do this instead
 namespace Synth {
   inline constexpr float TWO_PI = 6.28318f;  // Shared across all files
 }
@@ -148,7 +148,7 @@ namespace Synth {
 
 ### Pattern 1: File-Local Constants
 ```cpp
-// Voice.cpp
+// Oscillator.cpp
 namespace {
   constexpr float TWO_PI = 6.28318530717958647692f;
   constexpr float MIN_FREQUENCY = 20.0f;
@@ -156,7 +156,7 @@ namespace {
 }
 
 namespace Synth {
-  void Voice::setFrequency(float freq) {
+  void Oscillator::setFrequency(float freq) {
     if (freq >= MIN_FREQUENCY && freq <= MAX_FREQUENCY) {
       m_frequency = freq;
     }
@@ -228,8 +228,8 @@ namespace {
 }
 
 // Class member (when it belongs to the class)
-class Voice {
-  static constexpr float TWO_PI = 6.28318f;  // Voice::TWO_PI
+class Oscillator {
+  static constexpr float TWO_PI = 6.28318f;  // Oscillator::TWO_PI
 };
 ```
 

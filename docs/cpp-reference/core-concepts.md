@@ -77,6 +77,35 @@ void foo(std::string& s);         // REFERENCE - can modify original
 
 **Rule:** For strings/vectors/objects, use `const T&` unless you need to modify.
 
+### The Function Signature is King
+
+**Critical concept:** The function parameter determines HOW the argument is passed, not the caller.
+
+```cpp
+void process(Oscillator& osc);  // Function expects a reference
+
+Oscillator original;
+Oscillator copy = original;
+
+process(original);  // Passes reference to original
+process(copy);      // Passes reference to copy (not original!)
+```
+
+**Implication for loops:**
+```cpp
+// BAD - modifies copies, not originals
+for (auto osc : oscillators) {           // osc = COPY
+    process(osc);  // Function gets reference to COPY
+}
+
+// GOOD - modifies originals
+for (auto& osc : oscillators) {          // osc = REFERENCE
+    process(osc);  // Function gets reference to ORIGINAL
+}
+```
+
+**Remember:** The function signature controls what it receives, whether you pass a value or reference. A reference to a copy is still just a reference to a copy!
+
 ### Optional Parameters (Default Values)
 ```cpp
 // In .h file - defaults ONLY here

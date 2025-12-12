@@ -36,17 +36,17 @@ MyClass.cpp  // Implementation
 
 **Important:** All your code should be in a namespace, not the global namespace.
 
-**Why?** Prevents name collisions with other libraries. If you and another library both have a `Voice` class in the global namespace, they'll conflict.
+**Why?** Prevents name collisions with other libraries. If you and another library both have an `Oscillator` class in the global namespace, they'll conflict.
 
 ```cpp
 // Bad - global namespace
-class Voice {  // Could conflict with other libraries
+class Oscillator {  // Could conflict with other libraries
   // ...
 };
 
 // Good - your own namespace
 namespace MySynth {
-  class Voice {  // No conflicts!
+  class Oscillator {  // No conflicts!
     // ...
   };
 }
@@ -56,15 +56,15 @@ See [core-concepts.md](./core-concepts.md#namespaces) for detailed namespace inf
 
 ### Namespace in Headers and Implementation
 
-**Voice.h:**
+**Oscillator.h:**
 ```cpp
 #pragma once
 
 namespace MySynth {
 
-class Voice {
+class Oscillator {
 public:
-  Voice(float frequency, float sampleRate);
+  Oscillator(float frequency, float sampleRate);
   void setFrequency(float freq);
   float getFrequency() const;
 
@@ -79,24 +79,24 @@ private:
 }  // namespace MySynth
 ```
 
-**Voice.cpp:**
+**Oscillator.cpp:**
 ```cpp
-#include "Voice.h"
+#include "Oscillator.h"
 
 namespace MySynth {
 
-Voice::Voice(float frequency, float sampleRate)
+Oscillator::Oscillator(float frequency, float sampleRate)
   : m_frequency(frequency),
     m_sampleRate(sampleRate),
     m_phaseIncrement(frequency / sampleRate)
 {}
 
-void Voice::setFrequency(float freq) {
+void Oscillator::setFrequency(float freq) {
   m_frequency = freq;
   updatePhaseIncrement();
 }
 
-float Voice::getFrequency() const {
+float Oscillator::getFrequency() const {
   return m_frequency;
 }
 

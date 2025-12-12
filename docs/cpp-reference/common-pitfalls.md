@@ -6,6 +6,7 @@ Things that will bite you coming from TypeScript or other safe languages.
 - [Integer Overflow](#integer-overflow)
 - [Buffer Overflow](#buffer-overflow)
 - [Dangling References](#dangling-references)
+- [Range-Based For Loops Copy by Default](#range-based-for-loops-copy-by-default)
 - [The Trust Problem](#the-trust-problem)
 
 ---
@@ -188,6 +189,119 @@ std::unique_ptr<int> getPtr() {
 // Pass output parameter by reference
 void getData(std::string& out) {
     out = "hello";  // Modifies caller's string
+}
+```
+
+---
+
+## Range-Based For Loops Copy by Default
+
+### The Gotcha
+
+**Range-based for loops create copies unless you use `&`:**
+
+```cpp
+std::vector<Oscillator> oscillators;
+
+// WRONG - Creates a COPY of each oscillator!
+for (auto osc : oscillators) {
+    osc.setFrequency(440.0f);       // Modifies the copy, not the original
+    float sample = osc.getNextSample(); // Advances phase on the copy
+}
+// Original oscillators unchanged!
+
+// CORRECT - Works with the originals
+for (auto& osc : oscillators) {
+    osc.setFrequency(440.0f);       // Modifies the original ✓
+    float sample = osc.getNextSample(); // Advances original's phase ✓
+}
+
+// ALSO CORRECT - Read-only access (most efficient)
+for (const auto& osc : oscillators) {
+    float sample = osc.getNextSample(); // If getNextSample() is const
+}
+```
+
+### Why This Bites You
+
+**1. Performance - Copying is expensive:**
+```cpp
+std::vector<Oscillator> oscillators(100);
+
+// BAD - Copies 100 Oscillator objects every iteration!
+for (auto osc : oscillators) {
+    float sample = osc.getNextSample();
+}
+
+// GOOD - Zero copies
+for (const auto& osc : oscillators) {
+    float sample = osc.getNextSample();
+}
+```
+
+**2. Correctness - State changes don't persist:**
+```cpp
+// Bug: Phase never advances on originals
+for (auto osc : oscillators) {
+    value += osc.getNextSample();  // Advances COPY's phase
+}
+// Next iteration: all oscillators still at phase = 0!
+
+// Fixed: Phase advances on originals
+for (auto& osc : oscillators) {
+    value += osc.getNextSample();  // Advances ORIGINAL's phase ✓
+}
+```
+
+### Quick Reference
+
+| Syntax | What It Does | Use When |
+|--------|--------------|----------|
+| `auto item` | **Copies** each element | Almost never (expensive & wrong) |
+| `auto& item` | **Reference** to element | You need to modify |
+| `const auto& item` | **Const reference** | Reading only (preferred) |
+
+### Why C++ Does This
+
+**Consistency with function parameters:**
+```cpp
+void foo(Oscillator osc);       // Copy
+void foo(Oscillator& osc);      // Reference
+void foo(const Oscillator& osc); // Const reference
+```
+
+Range-based for loops follow the same rules - `auto` deduces the type like a parameter would.
+
+### Comparison to Index-Based Loops
+
+Index-based loops don't have this issue:
+```cpp
+// Direct access to originals - no copying
+for (int i = 0; i < oscillators.size(); ++i) {
+    oscillators[i].getNextSample();  // Modifies original ✓
+}
+```
+
+But range-based loops are clearer when you don't need the index - just remember the `&`!
+
+### The Rule
+
+**Always use `&` or `const&` in range-based for loops unless you explicitly want a copy (rare).**
+
+```cpp
+// Reading only → const auto&
+for (const auto& osc : oscillators) {
+    std::cout << osc.getFrequency();
+}
+
+// Modifying → auto&
+for (auto& osc : oscillators) {
+    osc.reset();
+}
+
+// Need a copy → auto (rare!)
+for (auto oscCopy : oscillators) {
+    oscCopy.setFrequency(440.0f);  // Modify copy, leave original alone
 }
 ```
 
