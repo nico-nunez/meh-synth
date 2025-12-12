@@ -1,4 +1,4 @@
-#include "Voice.h"
+#include "Oscillator.h"
 #include <cmath>
 
 namespace {
@@ -9,36 +9,36 @@ constexpr float TWO_PI = 2 * static_cast<float>(M_PI);
 
 namespace Synth {
 
-Voice::Voice(float freq, float sampleRate)
+Oscillator::Oscillator(float freq, float sampleRate)
     : m_frequency(freq), m_sampleRate(sampleRate) {
   calculatePhaseIncrement();
 }
 
 // Change in frequency requires recalculation of phase increment
 // Thus member is private and updated via method
-void Voice::setFrequency(float freq) {
+void Oscillator::setFrequency(float freq) {
   m_frequency = freq;
   calculatePhaseIncrement();
 }
-float Voice::getFrequency() const { return m_frequency; }
+float Oscillator::getFrequency() const { return m_frequency; }
 
 // Change in sample rate requires recalculation of phase increment
 // Thus member is private and updated via method
-void Voice::setSampleRate(float sampleRate) {
+void Oscillator::setSampleRate(float sampleRate) {
   m_sampleRate = sampleRate;
   calculatePhaseIncrement();
 }
-float Voice::getSampleRate() const { return m_sampleRate; }
+float Oscillator::getSampleRate() const { return m_sampleRate; }
 
 // Calculate in advance in order to increment the phase each step.
 // More efficient than time-based calculation on every increment.
 // Introduces (neglibile) drift due to continous add operations using float
-void Voice::calculatePhaseIncrement() {
+void Oscillator::calculatePhaseIncrement() {
   m_phaseIncrement = TWO_PI * m_frequency / m_sampleRate;
 }
 
 // Increament after each sample
-void Voice::incrementPhase() {
+void Oscillator::incrementPhase() {
   m_phase += m_phaseIncrement;
 
   // Wrap phase to prevent float precision issues
@@ -47,7 +47,7 @@ void Voice::incrementPhase() {
     m_phase -= TWO_PI;
 }
 
-float Voice::getNextSampleValue() {
+float Oscillator::getNextSampleValue() {
   float sample{std::sin(m_phase)};
   incrementPhase();
   return sample;

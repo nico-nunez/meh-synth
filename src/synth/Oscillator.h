@@ -1,10 +1,10 @@
-#ifndef SYNTH_VOICE_H
-#define SYNTH_VOICE_H
+#ifndef SYNTH_OSCILLATOR_H
+#define SYNTH_OSCILLATOR_H
 
 namespace Synth {
-class Voice {
+class Oscillator {
 public:
-  Voice(float freq, float sampleRate = 44100.0f);
+  Oscillator(float freq, float sampleRate = 44100.0f);
 
   void setFrequency(float freq);
   float getFrequency() const;

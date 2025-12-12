@@ -1,3 +1,4 @@
+#include "synth/Oscillator.h"
 #include "utils/SineUtils.h"
 #include "utils/WavWriter.h"
 
@@ -12,19 +13,19 @@
 int main() {
   // Audio parameters
   const int SAMPLE_RATE = 44100;  // CD quality: 44,100 samples per second
-  const int DURATION_SECONDS = 2; // Length of audio
+  const int DURATION_SECONDS = 4; // Length of audio
 
   // Generate 3 notes(hz) -> C4, E4-flat, G4 (Cminor triad)
-  std::vector<double> notesToGenerate{
-      SineUtils::getHertzFromSemitoneOffset(-9),
-      SineUtils::getHertzFromSemitoneOffset(-6),
-      SineUtils::getHertzFromSemitoneOffset(-2)};
+  std::vector<Synth::Oscillator> oscillators{
+      Synth::Oscillator(SineUtils::getHertzFromSemitoneOffset(-9)),
+      Synth::Oscillator(SineUtils::getHertzFromSemitoneOffset(-6)),
+      Synth::Oscillator(SineUtils::getHertzFromSemitoneOffset(-2))};
 
-  assert(notesToGenerate.size() <= INT_MAX);
+  assert(oscillators.size() <= INT_MAX);
 
   // Calculate total number of samples
   const int32_t TOTAL_SAMPLES =
-      SAMPLE_RATE * DURATION_SECONDS * static_cast<int>(notesToGenerate.size());
+      SAMPLE_RATE * DURATION_SECONDS * static_cast<int>(oscillators.size());
 
   // Generate sine wave samples
   // Audio is just an array of numbers representing air pressure over time
@@ -35,9 +36,12 @@ int main() {
 
   std::ofstream wavFile{WavWriter::createWavFile()};
 
-  for (auto frequency : notesToGenerate)
-    SineUtils::generateSineValues(samples, frequency, DURATION_SECONDS,
-                                  SAMPLE_RATE);
+  // Play oscillators for given duration in sequence
+  // for (auto &osc : oscillators)
+  //   SineUtils::playOscillator(samples, osc, DURATION_SECONDS);
+
+  // Play oscillators together (as a chord) for given duration
+  SineUtils::playOscChord(samples, oscillators, DURATION_SECONDS);
 
   if (!wavFile) {
     std::cerr << "Error: Could not create output.wav\n";
@@ -56,7 +60,7 @@ int main() {
   WavWriter::writeInt32(wavFile, TOTAL_SAMPLES * 2);
 
   // Write all the audio samples
-  for (auto sample : samples) {
+  for (auto &sample : samples) {
     WavWriter::writeInt16(wavFile, sample);
   }
 
