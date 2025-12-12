@@ -16,7 +16,7 @@ release: CXXFLAGS = $(RELEASE_FLAGS)
 release: $(TARGET)
 
 $(TARGET): $(SOURCES)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SOURCES)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(SOURCES)
 
 clean:
 	rm -f $(TARGET)
