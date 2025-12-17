@@ -117,13 +117,15 @@ for (auto* effect : effectChain) {
 
 ### Virtual Destructors
 
-**Critical rule:** If a class has virtual functions, it **must** have a virtual destructor.
+**⚠️ CRITICAL RULE: If a class is used polymorphically (via base class pointer), it MUST have a virtual destructor.**
+
+This is **not optional** - it prevents undefined behavior and memory leaks.
 
 ```cpp
 class Base {
 public:
   virtual void foo() {}
-  virtual ~Base() {}  // Virtual destructor - REQUIRED
+  virtual ~Base() {}  // Virtual destructor - REQUIRED for polymorphism
 };
 
 class Derived : public Base {
@@ -137,9 +139,39 @@ private:
 // Why it matters:
 Base* ptr = new Derived();
 delete ptr;  // Without virtual destructor, only Base::~Base() is called!
-             // Derived::~Derived() is skipped - MEMORY LEAK
-             // With virtual destructor, both destructors are called correctly
+             // Derived::~Derived() is skipped - MEMORY LEAK + UNDEFINED BEHAVIOR
+             // With virtual destructor, both destructors are called correctly:
+             // 1. ~Derived() called first (cleans up m_data)
+             // 2. ~Base() called second
 ```
+
+#### The Modern C++ Way
+
+Use `= default` for virtual destructors when you don't need custom cleanup:
+
+```cpp
+class Oscillator {
+public:
+  virtual float getNextSample() = 0;
+  virtual ~Oscillator() = default;  // Generate default, but make it virtual
+};
+```
+
+**This is equivalent to:**
+```cpp
+virtual ~Oscillator() {}  // Empty destructor
+```
+
+But `= default` is clearer and signals intent better.
+
+#### Performance Cost
+
+**Minimal** - only when the destructor is actually called (object destruction), not on every method call:
+- One vtable lookup when deleting
+- ~1 nanosecond overhead
+- Worth it to avoid memory leaks and undefined behavior
+
+For audio code, this is negligible - you typically create oscillators during setup, not in the audio callback.
 
 ## Pure Virtual Functions (Abstract Classes)
 
@@ -646,10 +678,10 @@ osc->getNextSample();  // Compiler can't know which type at compile time
 
 ## Quick Rules
 
-1. **Use `virtual`** when derived classes need to override behavior
-2. **Use `= 0` (pure virtual)** when there's no sensible base implementation
-3. **Always use `override`** when overriding to catch errors
-4. **Always have virtual destructor** if class has any virtual functions
+1. **⚠️ ALWAYS add `virtual ~ClassName() = default;` to polymorphic base classes** - not optional!
+2. **Use `virtual`** when derived classes need to override behavior
+3. **Use `= 0` (pure virtual)** when there's no sensible base implementation
+4. **Always use `override`** when overriding to catch errors
 5. **Avoid virtual calls** in per-sample loops for performance
 6. **Consider alternatives** (function pointers, templates) for simple cases
 7. **Use polymorphism** for plugin systems, runtime flexibility, and per-type state

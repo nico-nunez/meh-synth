@@ -1,5 +1,6 @@
 #include "synth/Oscillator.h"
 #include "utils/AudioUtils.h"
+#include "utils/SynthUtils.h"
 #include "utils/WavWriter.h"
 
 #include <cassert>
@@ -15,20 +16,19 @@ int main() {
   const int SAMPLE_RATE = 44100;  // CD quality: 44,100 samples per second
   const int DURATION_SECONDS = 4; // Length of audio
 
-  // Generate 3 notes(hz) -> C4, E4-flat, G4 (Cminor triad)
-  // AudioUtils::Sequence monoSequence{
-  //     Synth::OscillatorGroup{
-  //         Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-9))},
-  //     Synth::OscillatorGroup{
-  //         Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-6))},
-  //     Synth::OscillatorGroup{
-  //         Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-2))}};
+  AudioUtils::FreqSequence polyNotes{
+      {SynthUtils::getHertzFromSemitoneOffset(-9),
+       SynthUtils::getHertzFromSemitoneOffset(-6),
+       SynthUtils::getHertzFromSemitoneOffset(-2)}};
+
+  // AudioUtils::FreqSequence monoNotes{
+  //     SynthUtils::getHertzFromSemitoneOffset(-9),
+  //     SynthUtils::getHertzFromSemitoneOffset(-6),
+  //     SynthUtils::getHertzFromSemitoneOffset(-2)};
 
   // Generate 3 notes(hz) -> C4, E4-flat, G4 (Cminor triad)
-  AudioUtils::Sequence polySequence{Synth::OscillatorGroup{
-      Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-9)),
-      Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-6)),
-      Synth::Oscillator(AudioUtils::getHertzFromSemitoneOffset(-2))}};
+  AudioUtils::Sequence polySequence{SynthUtils::getSequenceFromFreqs(
+      polyNotes, Synth::OscType::Sine, SAMPLE_RATE)};
 
   // Ensure sequence length can be converted to int
   // TODO: add runtime check

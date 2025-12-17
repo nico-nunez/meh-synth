@@ -1,6 +1,7 @@
 #include "Oscillator.h"
 #include "utils/Waveform.h"
-#include <cmath>
+#include <memory>
+#include <stdexcept>
 
 namespace Synth {
 
@@ -46,6 +47,22 @@ void Oscillator::incrementPhase() {
 float Oscillator::getNextSampleValue() {
   incrementPhase();
   return m_waveformFunc(m_phase);
+}
+
+OscillatorPtr createOsc(OscType oscType, float freq, float sampleRate) {
+
+  switch (oscType) {
+  case OscType::Sine:
+    return std::make_unique<SineOsc>(freq, sampleRate);
+  case OscType::Saw:
+    return std::make_unique<SawOsc>(freq, sampleRate);
+  case OscType::Square:
+    return std::make_unique<SquareOsc>(freq, sampleRate);
+  case OscType::Triangle:
+    return std::make_unique<TriangleOsc>(freq, sampleRate);
+  default:
+    throw std::invalid_argument("Invalid oscillator type");
+  }
 }
 
 } // namespace Synth

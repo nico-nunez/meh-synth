@@ -10,10 +10,8 @@ inline constexpr float DEFAULT_AMPLITUDE{0.5f};
 
 using Sequence = std::vector<Synth::OscillatorGroup>;
 
-void generateSineValues(std::vector<int16_t> &samples, double frequency,
-                        const int duration, const int sampleRate);
-
-float getHertzFromSemitoneOffset(int semitones);
+using FreqGroup = std::vector<float>;
+using FreqSequence = std::vector<FreqGroup>;
 
 void playOscillator(std::vector<int16_t> &samples, Synth::Oscillator &osc,
                     int duration, float amplitude = DEFAULT_AMPLITUDE);

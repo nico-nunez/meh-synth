@@ -5,10 +5,14 @@
 #include <vector>
 
 namespace Synth {
+constexpr float DEFAULT_SAMPLE_RATE = 44100.0f;
+
 class Oscillator {
 public:
-  Oscillator(float freq, float sampleRate = 44100.0f,
+  Oscillator(float freq, float sampleRate = DEFAULT_SAMPLE_RATE,
              Waveforms::WaveformFunc waveformFunc = Waveforms::sine);
+
+  virtual ~Oscillator() = default;
 
   void setFrequency(float freq);
   float getFrequency() const;
@@ -30,7 +34,55 @@ private:
   void calculatePhaseIncrement();
 };
 
-using OscillatorGroup = std::vector<Oscillator>;
+// ==== Begin: Waveform Oscillators ====
+
+class SineOsc : public Oscillator {
+public:
+  SineOsc(float freq, float sampleRate = DEFAULT_SAMPLE_RATE)
+      : Oscillator(freq, sampleRate, Waveforms::sine) {}
+};
+
+class SawOsc : public Oscillator {
+public:
+  SawOsc(float freq, float sampleRate = DEFAULT_SAMPLE_RATE)
+      : Oscillator(freq, sampleRate, Waveforms::saw) {}
+};
+
+class SquareOsc : public Oscillator {
+public:
+  SquareOsc(float freq, float sampleRate = DEFAULT_SAMPLE_RATE)
+      : Oscillator(freq, sampleRate, Waveforms::square) {}
+};
+
+class TriangleOsc : public Oscillator {
+public:
+  TriangleOsc(float freq, float sampleRate = DEFAULT_SAMPLE_RATE)
+      : Oscillator(freq, sampleRate, Waveforms::triangle) {}
+};
+
+// ==== End: Wavefrom Oscillators ====
+
+using OscillatorPtr = std::unique_ptr<Oscillator>;
+using OscillatorGroup = std::vector<OscillatorPtr>;
+
+// Generic factory for creating specified waveform Oscillator
+template <typename T>
+OscillatorPtr createOscByClass(float freq,
+                               float sampleRate = DEFAULT_SAMPLE_RATE) {
+  static_assert(std::is_base_of<Oscillator, T>::value,
+                "Invalid type: must be derived from Oscillator");
+  return std::make_unique<T>(freq, sampleRate);
+}
+
+enum class OscType {
+  Sine,
+  Saw,
+  Square,
+  Triangle,
+};
+
+OscillatorPtr createOsc(OscType oscType, float freq,
+                        float sampleRate = DEFAULT_SAMPLE_RATE);
 
 } // namespace Synth
 

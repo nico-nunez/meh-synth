@@ -321,6 +321,40 @@ float (*generate)(float);  // Direct function call (can be inlined)
 - ✓ Clear class hierarchy
 - ✗ Slight overhead (vtable lookup)
 - ✗ Must use inheritance
+- ⚠️ **Requires virtual destructor** - mandatory for polymorphic classes to prevent memory leaks
+
+### When to Switch to Polymorphism
+
+**Use function pointers when:**
+- Functions are stateless (pure math)
+- No per-instance data needed
+- Performance critical (zero overhead)
+
+**Switch to polymorphism (virtual functions) when:**
+- Different types need **different state** (e.g., pulse width for square wave)
+- Derived classes need **unique methods** (e.g., `loadWavetable()` for wavetable oscillator)
+- You need **runtime type identification**
+
+```cpp
+// Function pointers work fine - stateless
+float sineWave(float phase) { return std::sin(phase); }
+float sawWave(float phase) { return 2.0f * phase - 1.0f; }
+
+// But if you need this... use polymorphism instead:
+class PWMOscillator {
+  float m_pulseWidth;  // Unique state
+  void setPulseWidth(float w);  // Unique method
+};
+
+// With polymorphism, you MUST add virtual destructor:
+class Oscillator {
+public:
+  virtual float getNextSample() = 0;
+  virtual ~Oscillator() = default;  // REQUIRED!
+};
+```
+
+**See [polymorphism.md](polymorphism.md) for details on virtual destructors and inheritance.**
 
 ### vs std::function
 

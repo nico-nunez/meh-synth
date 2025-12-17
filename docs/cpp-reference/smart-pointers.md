@@ -526,8 +526,24 @@ private:
 
 ### Polymorphism with Smart Pointers
 
+**⚠️ CRITICAL: When using smart pointers with polymorphism, the base class MUST have a virtual destructor!**
+
 ```cpp
-// Before
+// Base class for polymorphism - MUST have virtual destructor
+class Oscillator {
+public:
+  virtual float getNextSample() = 0;
+  virtual ~Oscillator() = default;  // REQUIRED! Without this = undefined behavior
+};
+
+class SineOscillator : public Oscillator {
+public:
+  float getNextSample() override { return std::sin(m_phase); }
+private:
+  float m_phase = 0.0f;
+};
+
+// Before - raw pointers
 std::vector<Oscillator*> oscillators;
 oscillators.push_back(new SineOscillator());
 oscillators.push_back(new SquareOscillator());
@@ -537,13 +553,24 @@ for (auto* osc : oscillators) {
 }
 oscillators.clear();
 
-// After
+// After - smart pointers
 std::vector<std::unique_ptr<Oscillator>> oscillators;
 oscillators.push_back(std::make_unique<SineOscillator>());
 oscillators.push_back(std::make_unique<SquareOscillator>());
 
 // Automatically deleted when vector is destroyed or cleared!
+// Virtual destructor ensures correct cleanup for each derived type
 ```
+
+**Why virtual destructor is required:**
+
+Without it, when `unique_ptr<Oscillator>` deletes a `SineOscillator`, only `~Oscillator()` is called, not `~SineOscillator()` - this causes memory leaks and undefined behavior.
+
+With `virtual ~Oscillator()`, the correct destructor chain is called:
+1. `~SineOscillator()` (derived)
+2. `~Oscillator()` (base)
+
+**See [polymorphism.md](polymorphism.md) for complete details on virtual destructors.**
 
 ## Common Patterns
 
