@@ -48,3 +48,6 @@ cmake_install.cmake
 *.su
 *.idb
 *.pdb
+
+# My stuff
+docs/architecture
