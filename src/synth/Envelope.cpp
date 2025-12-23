@@ -3,7 +3,7 @@
 
 namespace Synth {
 Envelope::Envelope(float sampleRate) : mSampleRate(sampleRate) {
-  setAttack(10.0f);
+  setAttack(50.0f);
   setDecay(100.0f);
   setSustain(0.7f);
   setRelease(200.0f);
@@ -58,18 +58,18 @@ void Envelope::setSampleRate(float sampleRate) {
 float Envelope::getSampleRate() const { return mSampleRate; }
 
 // Envelope Control Methods
-void Envelope::trigger() {
+void Envelope::noteOn() {
   mStateProgress = 0;
   mState = State::Attack;
 }
 
-void Envelope::release() {
+void Envelope::noteOff() {
   mReleaseStartLevel = getCurrentAmplitude();
   mState = State::Release;
   mStateProgress = 0;
 }
 
-float Envelope::getNextSample() {
+float Envelope::process() {
   float amplitude = 0.0f;
 
   switch (mState) {
@@ -116,7 +116,7 @@ float Envelope::getNextSample() {
   return amplitude;
 }
 
-bool Envelope::isDone() const { return mState == State::Idle; }
+bool Envelope::isComplete() const { return mState == State::Idle; }
 
 // Helper Methods
 float Envelope::getCurrentAmplitude() const {

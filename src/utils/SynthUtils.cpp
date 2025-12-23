@@ -1,9 +1,6 @@
 #include "SynthUtils.h"
-#include "synth/Oscillator.h"
-#include "utils/AudioUtils.h"
 
 #include <iostream>
-#include <utility>
 #include <vector>
 
 namespace SynthUtils {
@@ -39,22 +36,6 @@ void generateSineValues(std::vector<int16_t> &samples, double frequency,
  */
 float getHertzFromSemitoneOffset(int semitones) {
   return 440.0f * static_cast<float>(std::pow(2.0, (1.0 / 12.0) * semitones));
-}
-
-AudioUtils::Sequence
-getSequenceFromFreqs(AudioUtils::FreqSequence &freqSequence,
-                     Synth::OscType oscType, float sampleRate) {
-  AudioUtils::Sequence sequence{};
-
-  for (auto &freqGroup : freqSequence) {
-    Synth::OscillatorGroup oscGroup{};
-    for (auto &freq : freqGroup) {
-      oscGroup.push_back(Synth::createOsc(oscType, freq, sampleRate));
-    }
-    sequence.push_back(std::move(oscGroup));
-  }
-
-  return sequence;
 }
 
 } // namespace SynthUtils

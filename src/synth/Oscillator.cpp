@@ -1,68 +1,72 @@
 #include "Oscillator.h"
 #include "utils/Waveform.h"
-#include <memory>
-#include <stdexcept>
 
 namespace Synth {
+constexpr float DEFAULT_AMPLITUDE{0.5f};
 
-Oscillator::Oscillator(float freq, float sampleRate,
-                       Waveforms::WaveformFunc waveFunc)
-    : m_frequency(freq), m_sampleRate(sampleRate), m_waveformFunc(waveFunc) {
-  calculatePhaseIncrement();
+Oscillator::Oscillator(OscillatorType oscType, float sampleRate)
+    : mWaveform(oscType), mSampleRate(sampleRate) {
+  setOscillatorType(oscType);
 }
 
-// Change in frequency requires recalculation of phase increment
-// Thus member is private and updated via method
 void Oscillator::setFrequency(float freq) {
-  m_frequency = freq;
-  calculatePhaseIncrement();
+  mPhase = 0;
+  mFrequency = freq;
+  calcPhaseIncrement();
 }
-float Oscillator::getFrequency() const { return m_frequency; }
 
-// Change in sample rate requires recalculation of phase increment
-// Thus member is private and updated via method
+float Oscillator::getFrequency() const { return mFrequency; }
+
 void Oscillator::setSampleRate(float sampleRate) {
-  m_sampleRate = sampleRate;
-  calculatePhaseIncrement();
+  mSampleRate = sampleRate;
+  calcPhaseIncrement();
 }
-float Oscillator::getSampleRate() const { return m_sampleRate; }
+
+float Oscillator::getSampleRate() const { return mSampleRate; }
 
 // Calculate in advance in order to increment the phase each step.
 // More efficient than time-based calculation on every increment.
 // Introduces (neglibile) drift due to continous add operations using float
-void Oscillator::calculatePhaseIncrement() {
-  m_phaseIncrement = m_frequency / m_sampleRate; // normalized
+void Oscillator::calcPhaseIncrement() {
+  mPhaseIncrement = mFrequency / mSampleRate; // normalized
 }
 
 // Increament after each sample
 void Oscillator::incrementPhase() {
-  m_phase += m_phaseIncrement;
+  mPhase += mPhaseIncrement;
 
   // Wrap phase to prevent float precision issues
   // due to limited number of significant digits (~7)
-  if (m_phase >= 1.0f)
-    m_phase -= 1.0f;
+  if (mPhase >= 1.0f)
+    mPhase -= 1.0f;
 }
 
-float Oscillator::getNextSampleValue() {
+float Oscillator::process() {
   incrementPhase();
-  return m_waveformFunc(m_phase);
+  return mWaveformFunc(mPhase);
 }
 
-OscillatorPtr createOsc(OscType oscType, float freq, float sampleRate) {
-
+void Oscillator::setOscillatorType(OscillatorType oscType) {
   switch (oscType) {
-  case OscType::Sine:
-    return std::make_unique<SineOsc>(freq, sampleRate);
-  case OscType::Saw:
-    return std::make_unique<SawOsc>(freq, sampleRate);
-  case OscType::Square:
-    return std::make_unique<SquareOsc>(freq, sampleRate);
-  case OscType::Triangle:
-    return std::make_unique<TriangleOsc>(freq, sampleRate);
+  case OscillatorType::Sine:
+    mWaveformFunc = Waveforms::sine;
+    break;
+  case OscillatorType::Saw:
+    mWaveformFunc = Waveforms::saw;
+    break;
+  case OscillatorType::Square:
+    mWaveformFunc = Waveforms::square;
+    break;
+  case OscillatorType::Triangle:
+    mWaveformFunc = Waveforms::triangle;
+    break;
   default:
-    throw std::invalid_argument("Invalid oscillator type");
+    throw std::runtime_error("Invalid oscillator type");
   }
+
+  mPhase = 0;
+  mWaveform = oscType;
+  calcPhaseIncrement();
 }
 
 } // namespace Synth

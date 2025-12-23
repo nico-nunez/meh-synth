@@ -34,10 +34,10 @@ public:
   float getSampleRate() const;
 
   // Envelope Control
-  void trigger();        // Start attack stage
-  void release();        // Start release stage
-  float getNextSample(); // Get current amplitude (0.0 - 1.0)
-  bool isDone() const;   // Has envelope stages completed
+  void noteOn();           // Start attack stage (start envelope)
+  void noteOff();          // Start release stage (finish envelope)
+  float process();         // Get current amplitude (0.0 - 1.0)
+  bool isComplete() const; // Has envelope stages completed
 
 private:
   enum class State { Idle, Attack, Decay, Sustain, Release };
