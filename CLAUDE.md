@@ -1,12 +1,20 @@
 # Project Context
 
 ## About This Project
-- **Learning project** - TypeScript developer learning C++ for audio software/plugin development
-- Main goal is education and understanding, not just getting things working
+- **Audio software development learning project** - Experienced TypeScript developer learning C++ and DSP for production-quality audio software/plugin development
+- Goal is to build production-ready synthesizer while learning C++ and DSP concepts
+- Learning through doing, not toy examples
+
+## Technical Approach
+- **Favor industry-standard patterns over "simple" solutions** - the goal is production quality, not educational shortcuts
+- **Assume solid programming background** - focus C++ and DSP-specific knowledge, not basic programming concepts
+- **Explain the "why"** - understanding rationale behind audio/DSP design patterns is key
+- **Real-world considerations matter** - performance, thread safety, and audio-specific concerns should be considered
 
 ## Working Style
 - **DO NOT update files unless explicitly requested** - this is a learning project and automatic fixes defeat the purpose
 - Offer suggestions, explanations, and guidance instead of making changes
+- When presenting options, explain trade-offs but lean toward industry best practices
 - Exception: Documentation and reference materials can be created/updated when asked
 
 ## Documentation Style

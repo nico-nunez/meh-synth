@@ -14,6 +14,9 @@ Concepts and "aha moments" for digital audio and signal processing.
 - **[WAV File Format](wav-file-format.md)** - File structure, headers, chunks, why you need metadata
 - Coming soon: PCM encoding, bit depth, other formats
 
+## Envelopes
+- **[Envelope Calculations](envelope-calculations.md)** - Sample-by-sample ADSR math, linear vs exponential curves
+
 ## Effects and Processing
 - Coming soon: filters, modulation, dynamics
 
