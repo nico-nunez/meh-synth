@@ -2,7 +2,6 @@
 #include "utils/Waveform.h"
 
 namespace Synth {
-constexpr float DEFAULT_AMPLITUDE{0.5f};
 
 Oscillator::Oscillator(OscillatorType oscType, float sampleRate)
     : mWaveform(oscType), mSampleRate(sampleRate) {

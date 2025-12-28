@@ -1,81 +1,43 @@
-#include "synth/Oscillator.h"
-#include "utils/AudioUtils.h"
+#include "synth/Engine.h"
 #include "utils/SynthUtils.h"
 #include "utils/WavWriter.h"
 
 #include <cassert>
-#include <climits>
 #include <cstddef>
-#include <cstdint>
-#include <fstream>
-#include <iostream>
 #include <vector>
 
 int main() {
   // Audio parameters
-  const int SAMPLE_RATE = 44100;  // CD quality: 44,100 samples per second
-  const int DURATION_SECONDS = 4; // Length of audio
+  const int SAMPLE_RATE = 44100;    // CD quality: 44,100 samples per second
+  const int DURATION_SECONDS = 4.0; // Length of audio
 
-  AudioUtils::FreqSequence polyNotes{
-      {SynthUtils::getHertzFromSemitoneOffset(-9),
-       SynthUtils::getHertzFromSemitoneOffset(-6),
-       SynthUtils::getHertzFromSemitoneOffset(-2)}};
+  std::vector<std::vector<std::string>> noteSequence{
+      {"C4", "D#4", "G4"}, {"F4", "G#4", "C5"}, {"G4", "A#5", "D5"}};
+  // std::vector<std::vector<std::string>> noteSequence{{"C4"}, {"D#4"},
+  // {"G4"}};
 
-  // AudioUtils::FreqSequence monoNotes{
-  //     SynthUtils::getHertzFromSemitoneOffset(-9),
-  //     SynthUtils::getHertzFromSemitoneOffset(-6),
-  //     SynthUtils::getHertzFromSemitoneOffset(-2)};
+  Synth::Sequence noteEventSequence{};
 
-  // Generate 3 notes(hz) -> C4, E4-flat, G4 (Cminor triad)
-  AudioUtils::Sequence polySequence{SynthUtils::getSequenceFromFreqs(
-      polyNotes, Synth::OscType::Sine, SAMPLE_RATE)};
+  for (const auto &noteGroup : noteSequence) {
+    Synth::NoteEventGroup eventGroup{};
 
-  // Ensure sequence length can be converted to int
-  // TODO: add runtime check
-  assert(polySequence.size() <= INT_MAX);
-
-  // Calculate total number of samples
-  const int32_t TOTAL_SAMPLES =
-      SAMPLE_RATE * DURATION_SECONDS * static_cast<int>(polySequence.size());
-
-  // Generate sine wave samples
-  // Audio is just an array of numbers representing air pressure over time
-  std::vector<int16_t> samples;
-
-  // TODO: add runtime check
-  assert(TOTAL_SAMPLES > 0);
-  samples.reserve(static_cast<size_t>(TOTAL_SAMPLES));
-
-  std::ofstream wavFile{WavWriter::createWavFile()};
-
-  // Generate sample values (aka play oscillators)
-  AudioUtils::renderSequence(samples, polySequence, DURATION_SECONDS);
-
-  if (!wavFile) {
-    std::cerr << "Error: Could not create output.wav\n";
-    return 1;
+    for (const auto &note : noteGroup) {
+      float noteFrequency{SynthUtils::noteNameToFrequency(note)};
+      eventGroup.push_back(SynthUtils::createNoteEvent(noteFrequency));
+    }
+    noteEventSequence.push_back(eventGroup);
   }
 
-  std::cout << "Writing WAV file...\n";
+  // Generate waveform samples
+  // Audio is just an array of values representing air pressure over time
+  // Values: floats (0.0 - 1.0)
+  Synth::Engine synthEngine{SAMPLE_RATE, Synth::OscillatorType::Square};
 
-  WavWriter::writeWavMetadata(wavFile, TOTAL_SAMPLES, SAMPLE_RATE);
+  auto audioBuffer{synthEngine.process(noteEventSequence, DURATION_SECONDS)};
 
-  // --- DATA CHUNK ---
-  // Contains the actual audio samples
-  WavWriter::writeString(wavFile, "data", 4);
+  int32_t fileSampleRate{static_cast<int32_t>(SAMPLE_RATE)};
 
-  // Data chunk size (number of samples * bytes per sample)
-  WavWriter::writeInt32(wavFile, TOTAL_SAMPLES * 2);
-
-  // Write all the audio samples
-  for (const auto &sample : samples) {
-    WavWriter::writeInt16(wavFile, sample);
-  }
-
-  wavFile.close();
-
-  std::cout << "Success! Created output.wav\n";
-  std::cout << "Play it with any audio player to hear your sine wave.\n";
+  WavWriter::writeWavFile("output.wav", audioBuffer, fileSampleRate);
 
   return 0;
 }

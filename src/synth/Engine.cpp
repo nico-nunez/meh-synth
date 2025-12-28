@@ -1,0 +1,86 @@
+#include "synth/Engine.h"
+#include "synth/Oscillator.h"
+#include "synth/Voice.h"
+#include <vector>
+
+namespace Synth {
+// Set to 0.6 instead of 1.0 for additional headroom to avoid clipping
+constexpr float DEFAULT_AMPLITUDE{0.6f};
+
+Engine::Engine(const float sampleRate, const OscillatorType oscType)
+    : mSampleRate(sampleRate), mOscillatorType(oscType) {
+  setupVoices();
+}
+
+void Engine::setOscillatorType(const OscillatorType oscType) {
+  mOscillatorType = oscType;
+
+  for (Voice &voice : mVoices) {
+    voice.setOscillatorType(mOscillatorType);
+  }
+}
+
+std::vector<float> Engine::process(const Sequence &sequence,
+                                   float stepDuration) {
+
+  int samplesPerStep{static_cast<int>(stepDuration * mSampleRate)};
+  int totalSamples{samplesPerStep * static_cast<int>(sequence.size())};
+
+  std::vector<float> buffer{};
+  buffer.reserve(static_cast<size_t>(totalSamples));
+
+  float releaseMs = 200.0f; // hardcoded for now.  will be dynamic later
+
+  int releaseSamples = static_cast<int>((releaseMs / 1000.0f) * mSampleRate);
+
+  // Note off needs to be adjusted (+1) due to 0 index
+  int noteOffSample = samplesPerStep - releaseSamples + 1;
+
+  // Sequence of note(s)
+  for (const auto &noteGroup : sequence) {
+    int activeVoices{0};
+
+    size_t voiceIndex{0};
+    for (auto &noteEvent : noteGroup) {
+      if (voiceIndex < mVoices.size() && mVoices[voiceIndex].isAvailable()) {
+        mVoices[voiceIndex].noteOn(noteEvent.frequency);
+        ++voiceIndex;
+        ++activeVoices;
+      }
+    }
+
+    // Render per sample note(s) values
+    for (int i = 0; i < samplesPerStep; ++i) {
+      float sampleValue{0.0f}; // amplitude (0.0 - 1.0)
+
+      if (i == noteOffSample) {
+        for (auto &voice : mVoices) {
+          // Only "turn off" active voices
+          if (!voice.isAvailable())
+            voice.noteOff();
+        }
+      }
+
+      // Share overall gain across each voice to avoid clipping
+      const float gainPerVoice =
+          DEFAULT_AMPLITUDE / static_cast<float>(activeVoices);
+
+      for (auto &voice : mVoices) {
+        sampleValue += voice.process() * gainPerVoice;
+      }
+
+      buffer.push_back(sampleValue);
+    }
+  }
+
+  return buffer;
+}
+
+// Helper methods
+void Engine::setupVoices() {
+  for (int i = 0; i < mMaxVoices; ++i) {
+    mVoices.push_back(Voice(mOscillatorType, mSampleRate));
+  }
+}
+
+} // namespace Synth
