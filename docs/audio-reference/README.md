@@ -9,6 +9,7 @@ Concepts and "aha moments" for digital audio and signal processing.
 - **[Oscillator Techniques](oscillator-techniques.md)** - Time-based vs phase increment approaches
 - **[Phase Increment Deep Dive](phase-increment-deep-dive.md)** - How phase increment works, performance, precision trade-offs
 - **[Polyphonic Synthesis](polyphonic-synthesis.md)** - How multiple notes become one waveform, voice management
+- **[Voice Stealing](voice-stealing.md)** - Voice allocation strategies, when to steal, oldest-first vs priority-based
 
 ## Audio File Formats
 - **[WAV File Format](wav-file-format.md)** - File structure, headers, chunks, why you need metadata
