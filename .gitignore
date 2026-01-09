@@ -49,5 +49,5 @@ cmake_install.cmake
 *.idb
 *.pdb
 
-# My stuff
-docs/architecture
+# Misc
+docs/misc

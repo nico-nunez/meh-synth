@@ -20,6 +20,8 @@ using NoteSequence = std::vector<std::vector<std::string>>;
 
 class Engine {
 public:
+  static const int MAX_VOICES{3};
+
   Engine(const float sampleRate = DEFAULT_SAMPLE_RATE,
          const OscillatorType oscType = OscillatorType::Sine);
 
@@ -30,12 +32,16 @@ public:
                              float totalDuration);
 
 private:
-  int mMaxVoices{3};
   float mSampleRate;
+
   OscillatorType mOscillatorType;
   std::vector<Voice> mVoices{};
 
+  float maxReleaseTime{};
+
   void setupVoices();
+
+  void updateMaxReleaseTime();
 };
 
 } // namespace Synth

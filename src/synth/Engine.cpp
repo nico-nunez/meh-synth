@@ -79,8 +79,15 @@ std::vector<float> Engine::process(const NoteEventSequence &evtSequence,
 
 // Helper methods
 void Engine::setupVoices() {
-  for (int i = 0; i < mMaxVoices; ++i) {
+  for (int i = 0; i < MAX_VOICES; ++i) {
     mVoices.push_back(Voice(mOscillatorType, mSampleRate));
+  }
+}
+
+void Engine::updateMaxReleaseTime() {
+  float maxRelease{};
+
+  for (const auto &voice : mVoices) {
   }
 }
 
