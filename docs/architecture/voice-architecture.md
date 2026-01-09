@@ -164,12 +164,12 @@ std::vector<OscillatorConfig> configs = {
 **Per-Voice Instances:**
 ```cpp
 class Voice {
-    struct OscillatorInstance {
+    struct OscillatorModule {
         Oscillator oscillator;      // Generates waveform
         Envelope envelope;          // Tracks ADSR state for THIS instance
     };
 
-    std::vector<OscillatorInstance> mOscillators;  // One per config
+    std::vector<OscillatorModule> mOscillators;  // One per config
 
     void noteOn(float freq) {
         for (auto& osc : mOscillators) {

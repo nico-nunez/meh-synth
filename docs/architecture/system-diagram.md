@@ -98,7 +98,7 @@ Each voice is an independent sound generator that follows Engine's configuration
 │  │  Oscillator Instances (Runtime State)        │      │
 │  │                                              │      │
 │  │  ┌────────────────────────────────────┐      │      │
-│  │  │ OscillatorInstance 1               │      │      │
+│  │  │ OscillatorModule 1                 │      │      │
 │  │  │  • Oscillator (Saw waveform)       │      │      │
 │  │  │    - Current phase: 0.347          │      │      │
 │  │  │    - Frequency: 261.63 Hz (C4)     │      │      │
@@ -108,7 +108,7 @@ Each voice is an independent sound generator that follows Engine's configuration
 │  │  └────────────────────────────────────┘      │      │
 │  │                                              │      │
 │  │  ┌────────────────────────────────────┐      │      │
-│  │  │ OscillatorInstance 2               │      │      │
+│  │  │ OscillatorModule 2                 │      │      │
 │  │  │  • Oscillator (Sine waveform)      │      │      │
 │  │  │    - Current phase: 0.891          │      │      │
 │  │  │    - Frequency: 261.63 Hz (C4)     │      │      │
@@ -117,7 +117,7 @@ Each voice is an independent sound generator that follows Engine's configuration
 │  │  │    - Progress: 0.3                 │      │      │
 │  │  └────────────────────────────────────┘      │      │
 │  │                                              │      │
-│  │  ... (OscillatorInstance 3)                  │      │
+│  │  ... (OscillatorModule 3)                    │      │
 │  └──────────────────────────────────────────────┘      │
 │                                                        │
 │  Voice State:                                          │
@@ -131,12 +131,12 @@ Each voice is an independent sound generator that follows Engine's configuration
 ```cpp
 class Voice {
 private:
-    struct OscillatorInstance {
+    struct OscillatorModule {
         Oscillator oscillator;  // Waveform generator + phase state
         Envelope envelope;      // ADSR state machine
     };
 
-    std::vector<OscillatorInstance> mOscillators;
+    std::vector<OscillatorModule> mOscillators;
     bool mIsActive;
 
 public:
@@ -370,7 +370,7 @@ Engine's render loop each sample:
 │     • Never in audio processing loop                   │
 │                                                        │
 │  5. Oscillator-Envelope Pairing                        │
-│     • Use OscillatorInstance struct                    │
+│     • Use OscillatorModule struct                      │
 │     • Keeps related data together                      │
 │     • Prevents sync issues                             │
 │                                                        │
