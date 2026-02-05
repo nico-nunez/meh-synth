@@ -1,5 +1,4 @@
 #include "SynthUtils.h"
-#include "synth/Engine.h"
 
 #include <cctype>
 #include <cmath>
@@ -84,20 +83,17 @@ float noteNameToFrequency(std::string_view noteName) {
   return midiToFrequency(midiNote);
 }
 
-Synth::NoteEvent createNoteEvent(const float frequency) {
-  return Synth::NoteEvent{frequency};
-}
-
-Synth::NoteEventGroup
-createEventGroupFromNotes(const std::vector<std::string> &notes) {
-  Synth::NoteEventGroup eventGroup{};
-  eventGroup.reserve(notes.size());
-
-  for (const std::string &note : notes) {
-    float noteFrequency{SynthUtils::noteNameToFrequency(note)};
-    eventGroup.emplace_back(noteFrequency);
-  }
-  return eventGroup;
-}
+// Synth::NoteEventGroup
+// createEventGroupFromNotes(const std::vector<std::string> &notes) {
+//   Synth::NoteEventGroup eventGroup{};
+//   eventGroup.reserve(notes.size());
+//
+//   for (const std::string &note : notes) {
+//     float noteFrequency{SynthUtils::noteNameToFrequency(note)};
+//     eventGroup.emplace_back(Synth::NoteEventType::NoteOff, 0, 0,
+//     noteFrequency);
+//   }
+//   return eventGroup;
+// }
 
 } // namespace SynthUtils

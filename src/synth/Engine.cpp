@@ -48,7 +48,7 @@ std::vector<float> Engine::process(const NoteEventSequence &evtSequence,
     size_t voiceIndex{0};
     for (auto &noteEvent : noteEvtGroup) {
       if (voiceIndex < mVoices.size() && mVoices[voiceIndex].isAvailable()) {
-        mVoices[voiceIndex].noteOn(noteEvent.frequency);
+        mVoices[voiceIndex].noteOn(noteEvent);
         ++voiceIndex;
         ++activeVoices;
       }

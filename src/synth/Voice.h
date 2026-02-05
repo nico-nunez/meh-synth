@@ -3,14 +3,17 @@
 
 #include "synth/Envelope.h"
 #include "synth/Oscillator.h"
+#include "utils/NoteEventQueue.h"
 
 namespace Synth {
+struct NoteEvent;
+
 class Voice {
 public:
   Voice(OscillatorType oscType = OscillatorType::Sine,
         float sampleRate = DEFAULT_SAMPLE_RATE);
 
-  void noteOn(float freq);
+  void noteOn(const utils::NoteEvent &event);
   void noteOff();
 
   float process();

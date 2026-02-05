@@ -3,19 +3,14 @@
 
 #include "synth/Oscillator.h"
 #include "synth/Voice.h"
+#include "utils/NoteEventQueue.h"
 #include <array>
 #include <string>
 #include <vector>
 
 namespace Synth {
 
-struct NoteEvent {
-  float frequency;
-
-  NoteEvent(float freq) : frequency(freq) {}
-};
-
-using NoteEventGroup = std::vector<NoteEvent>;
+using NoteEventGroup = std::vector<utils::NoteEvent>;
 using NoteEventSequence = std::vector<NoteEventGroup>;
 using NoteSequence = std::vector<std::vector<std::string>>;
 
@@ -29,11 +24,12 @@ public:
   void setOscillatorType(const OscillatorType oscType);
   void getOscillatorType() const;
 
+  // TODO(nico): Implement this!!!
+  void processBlock(float *outputBuffer, size_t numFrames);
+
+  // TODO(nico): Remove this once processBlock is implemented
   std::vector<float> process(const NoteEventSequence &evtSequence,
                              float totalDuration);
-
-  // Temp
-  void processBlock(float *outputBuffer, u_int32_t inNumberFrames);
 
 private:
   float mSampleRate;

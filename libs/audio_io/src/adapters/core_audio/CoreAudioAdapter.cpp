@@ -152,6 +152,7 @@ int coreAudioSetup(audio_io::hAudioSession sessionPtr) {
   }
 
   // IMPORTANT(nico-nunez):  MUST DISPOSE __audioUnit__ ON ERROR!!!!
+  // WARNING(nico-nunez):  MUST DISPOSE __audioUnit__ ON ERROR!!!!
 
   // 4. Configure stream format
   AudioStreamBasicDescription streamDescription{
