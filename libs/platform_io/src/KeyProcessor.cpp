@@ -4,6 +4,7 @@
 #include <cstdio>
 
 namespace platform_io {
+
 // Handle keyboard events
 static void keyEventCallback(device_io::KeyEvent event, void *userContext) {
   auto ctx = static_cast<NoteEventQueue *>(userContext);
@@ -39,8 +40,8 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
 
   // 2. Create a minimal window (required for local capture without permissions)
   device_io::WindowConfig config = device_io::defaultWindowConfig();
-  config.title = "Key Capture Demo";
-  config.width = 500;
+  config.title = "Super Synth";
+  config.width = 800;
   config.height = 500;
 
   if (!createCaptureWindow(config)) {
@@ -58,8 +59,22 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
     return 1;
   }
 
+  const char *windowText =
+      "Super Synth\n\n"
+      "Press 'z' to go down an octive and 'c' to go up an octive\n\n"
+      "================= Keyboard Layout =================\n"
+      "|    |   |   |   |   |   |   |   |   |   |   |   |\n"
+      "|    |   |   |   |   |   |   |   |   |   |   |   |\n"
+      "|    | w |   | E |   |   | T |   | Y |   | U |   |\n"
+      "|    |___|   |___|   |   |___|   |___|   |___|   |\n"
+      "|      |       |     |     |       |       |     |\n"
+      "|      |       |     |     |       |       |     |\n"
+      "|  A   |   S   |  D  |  F  |   G   |   H   |  J  |\n"
+      "|______|_______|_____|_____|_______|_______|_____|\n\n"
+      "Press keys... (ESC to quit)\n";
+
   // Update window text
-  device_io::setWindowText("Press keys... (ESC to quit)");
+  device_io::setWindowText(windowText);
 
   // 4. Run the event loop (blocks until stopKeyCaptureLoop() called)
   device_io::runKeyCaptureLoop();
