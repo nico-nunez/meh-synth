@@ -1,15 +1,16 @@
 # Project Context
 
 ## About This Project
-- **Audio software development learning project** - Experienced TypeScript developer learning C++ and DSP for production-quality audio software/plugin development
-- Goal is to build production-ready synthesizer while learning C++ and DSP concepts
-- Learning through doing, not toy examples
+- **Production-quality synthesizer development** - Building a professional-grade audio synthesizer using C++ and modern DSP techniques
+- Focus: Production patterns, performance, SIMD-ready architecture, real-time audio constraints
+- Learning path: Direct implementation of industry-standard techniques, not educational simplifications
 
 ## Technical Approach
-- **Favor industry-standard patterns over "simple" solutions** - the goal is production quality, not educational shortcuts
-- **Assume solid programming background** - focus C++ and DSP-specific knowledge, not basic programming concepts
-- **Explain the "why"** - understanding rationale behind audio/DSP design patterns is key
-- **Real-world considerations matter** - performance, thread safety, and audio-specific concerns should be considered
+- **Production-first, always** - Use patterns from professional synthesizers (Vital, Serum, etc.), not beginner shortcuts
+- **Assume solid programming background** - Focus on C++ audio/DSP specifics, performance optimization, real-time constraints
+- **Explain the "why" with context** - Explain rationale with references to production synthesizers when relevant
+- **Performance matters** - SIMD-ready architecture, cache-friendly data structures, real-time safe code
+- **Functional/procedural style preferred** - SoA + pure functions in hot paths, minimal OOP overhead in audio processing
 
 ## Working Style
 - **DO NOT update files unless explicitly requested** - this is a learning project and automatic fixes defeat the purpose
