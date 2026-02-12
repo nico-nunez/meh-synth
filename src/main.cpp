@@ -42,7 +42,9 @@ int main() {
 
   EngineConfig engineConfig{};
   engineConfig.sampleRate = SAMPLE_RATE;
-  engineConfig.osc2 = {synth::WaveformType::Saw, 0.5f, -1, 0.0f, true};
+  engineConfig.osc1.waveform = synth::WaveformType::Saw;
+  engineConfig.osc1.detuneAmount = 10.0f;
+  engineConfig.osc2 = {synth::WaveformType::Saw, 0.5f, -1, -10.0f, true};
   engineConfig.subOsc.mixLevel = 0.7f;
 
   Engine engine = synth::createEngine(engineConfig);

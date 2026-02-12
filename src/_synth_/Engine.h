@@ -3,14 +3,17 @@
 #include "_synth_/VoicePool.h"
 #include "dsp/Waveforms.h"
 #include "platform_io/AudioProcessor.h"
+#include "platform_io/NoteEventQueue.h"
 #include <cstdint>
 
 namespace synth {
+using NoteEvent = platform_io::NoteEvent;
+
 using VoicePool = voices::VoicePool;
-using VoicePoolConfig = voices::VoicePoolConfig;
+using VoiceConfig = voices::VoicePoolConfig;
 using WaveformType = dsp::waveforms::WaveformType;
 
-struct EngineConfig : VoicePoolConfig {
+struct EngineConfig : VoiceConfig {
   float sampleRate = platform_io::DEFAULT_SAMPLE_RATE;
   uint32_t numFrames = platform_io::DEFAULT_FRAMES;
 };
@@ -27,7 +30,7 @@ struct Engine {
 
   uint32_t noteCount = 0;
 
-  void processEvent(const platform_io::NoteEvent &event);
+  void processEvent(NoteEvent &event);
   void processBlock(float **outputBuffer, size_t numChannels, size_t numFrames);
 };
 
