@@ -7,7 +7,7 @@
 namespace synth::oscillator {
 using WaveformType = dsp::waveforms::WaveformType;
 
-struct Settings {
+struct OscConfig {
   WaveformType waveform = WaveformType::Sine;
   float mixLevel = 1.0f;     // 0.0-4.0 (-inf to +12DB)
   int8_t octaveOffset = 0;   // -2 to +2
@@ -27,6 +27,9 @@ struct Oscillator {
   float detuneAmount = 0.0f; // Cents: -100 to +100
   bool enabled = true;
 };
+
+Oscillator createOscillator(const OscConfig &settings);
+void updateConfig(Oscillator &osc, const OscConfig &settings);
 
 void setWaveformType(Oscillator &osc, WaveformType newType);
 void setMixLevel(Oscillator &osc, float newLevel);

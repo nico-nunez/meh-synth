@@ -37,12 +37,6 @@ int main() {
 #else
   synth::Engine engine{};
   engine.sampleRate = SAMPLE_RATE;
-  engine.voicePool.osc1.waveform = dsp::waveforms::WaveformType::Sine;
-  engine.voicePool.osc2.waveform = dsp::waveforms::WaveformType::Sine;
-  engine.voicePool.osc2.mixLevel = 0.7f;
-  engine.voicePool.osc2.octaveOffset = -1;
-  engine.voicePool.subOsc.mixLevel = 0.5f;
-  engine.voicePool.subOsc.octaveOffset = -2;
 #endif
 
   // 2. Setup audio_io

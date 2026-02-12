@@ -1,5 +1,4 @@
 #include "WavWriter.h"
-#include "Logger.h"
 #include <cassert>
 #include <climits>
 #include <cstddef>
@@ -113,7 +112,7 @@ void writeWavFile(const std::string &filename, std::vector<float> &audioBuffer,
     std::cerr << "Error: Could not create output.wav\n";
   }
 
-  synth::utils::Log("Writing WAV file...");
+  std::cout << "Writing WAV file...\n";
 
   writeWavMetadata(wavFile, TOTAL_SAMPLES, sampleRate);
 

@@ -3,13 +3,30 @@
 #include "Oscillator.h"
 #include "_synth_/Envelope.h"
 #include "_synth_/Types.h"
+#include "dsp/Waveforms.h"
 
 #include <cstddef>
 #include <cstdint>
 
 namespace synth::voices {
-using Oscillator = oscillator::Oscillator;
+using WaveformType = dsp::waveforms::WaveformType;
+
 using Envelope = envelope::Envelope;
+
+using OscConfig = oscillator::OscConfig;
+using Oscillator = oscillator::Oscillator;
+
+static constexpr OscConfig SUB_OSC_DEFAULT = {WaveformType::Sine, 0.5f, -2,
+                                              0.0f, true};
+
+struct VoicePoolConfig {
+  OscConfig osc1{};
+  OscConfig osc2{};
+  OscConfig osc3{};
+  OscConfig subOsc{SUB_OSC_DEFAULT};
+
+  float masterGain = 1.0f;
+};
 
 // VoicePool - top-level container (universal synth)
 struct VoicePool {
@@ -17,7 +34,7 @@ struct VoicePool {
   Oscillator osc1;
   Oscillator osc2;
   Oscillator osc3;
-  Oscillator subOsc; // Typically -1 or -2 octaves
+  Oscillator subOsc = oscillator::createOscillator(SUB_OSC_DEFAULT);
 
   // Reduce gain for multiple oscillators
   // TODO(nico): this needs to be tide to number of active oscs
@@ -59,6 +76,11 @@ struct VoicePool {
   uint32_t activeCount = 0;
   uint32_t activeIndices[MAX_VOICES]; // Dense array of active indices
 };
+
+// Initialize a VoicePool via config
+VoicePool initVoicePool(const VoicePoolConfig &config);
+
+void updateVoicePoolConfig(VoicePool &pool, const VoicePoolConfig &config);
 
 // Find free or oldest voice index for voice Initialization
 uint32_t allocateVoiceIndex(VoicePool &pool);

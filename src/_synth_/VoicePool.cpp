@@ -9,6 +9,28 @@
 
 namespace synth::voices {
 
+VoicePool initVoicePool(const VoicePoolConfig &config) {
+  VoicePool pool{};
+
+  oscillator::updateConfig(pool.osc1, config.osc1);
+  oscillator::updateConfig(pool.osc2, config.osc2);
+  oscillator::updateConfig(pool.osc3, config.osc3);
+  oscillator::updateConfig(pool.subOsc, config.subOsc);
+
+  pool.masterGain = config.masterGain;
+
+  return pool;
+}
+
+void updateVoicePoolConfig(VoicePool &pool, const VoicePoolConfig &config) {
+  oscillator::updateConfig(pool.osc1, config.osc1);
+  oscillator::updateConfig(pool.osc2, config.osc2);
+  oscillator::updateConfig(pool.osc3, config.osc3);
+  oscillator::updateConfig(pool.subOsc, config.subOsc);
+
+  pool.masterGain = config.masterGain;
+}
+
 // Find free or oldest voice index for voice Initialization
 uint32_t allocateVoiceIndex(VoicePool &pool) {
   uint32_t oldestIndex = MAX_VOICES; // out of range
@@ -31,10 +53,6 @@ uint32_t allocateVoiceIndex(VoicePool &pool) {
 
   return oldestIndex;
 }
-
-// Initial voice state for noteOn event
-int initializeVoice(VoicePool &pool, uint32_t index, uint8_t midiNote,
-                    float velocity, uint64_t timestamp, float sampleRate);
 
 // Trigger envelope release for voice playing midiNote
 void releaseVoice(VoicePool &pool, uint8_t midiNote);
@@ -188,18 +206,10 @@ void processVoices(VoicePool &pool, float *output, size_t numSamples) {
 // Handle NoteOn Events
 void handleNoteOn(VoicePool &pool, uint8_t midiNote, float velocity,
                   uint32_t noteOnTime, float sampleRate) {
-  uint32_t existingVoice = findVoiceRetrigger(pool, midiNote);
+  uint32_t voiceIndex = allocateVoiceIndex(pool);
 
-  if (isValidActiveIndex(existingVoice)) {
-    // Retrigger and DO NOT allocate and add a new voice
-    initializeVoice(pool, existingVoice, midiNote, velocity, noteOnTime,
-                    sampleRate);
-  } else {
-    // Allocate new voice
-    uint32_t voiceIndex = allocateVoiceIndex(pool);
-    initializeVoice(pool, voiceIndex, midiNote, velocity, noteOnTime,
-                    sampleRate);
-    addActiveIndex(pool, voiceIndex);
-  }
+  initializeVoice(pool, voiceIndex, midiNote, velocity, noteOnTime, sampleRate);
+
+  addActiveIndex(pool, voiceIndex);
 }
 } // namespace synth::voices

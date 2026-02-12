@@ -5,6 +5,14 @@
 
 namespace synth::oscillator {
 
+// Create a new Oscillator with passed config
+Oscillator createOscillator(const OscConfig &config) {
+  Oscillator osc{};
+  updateConfig(osc, config);
+
+  return osc;
+}
+
 void initOscillator(Oscillator &osc, uint32_t voiceIndex, uint8_t midiNote,
                     float sampleRate) {
 
@@ -71,6 +79,24 @@ float processOscillator(Oscillator &osc, uint32_t voiceIndex) {
   incrementPhase(osc, voiceIndex);
 
   return sample;
+}
+
+// Helper for updating global settings
+void updateConfig(Oscillator &osc, const OscConfig &config) {
+  if (osc.detuneAmount != config.detuneAmount)
+    osc.detuneAmount = config.detuneAmount;
+
+  if (osc.enabled != config.enabled)
+    osc.enabled = config.enabled;
+
+  if (osc.mixLevel != config.mixLevel)
+    osc.mixLevel = config.mixLevel;
+
+  if (osc.octaveOffset != config.octaveOffset)
+    osc.octaveOffset = config.octaveOffset;
+
+  if (osc.waveform != config.waveform)
+    osc.waveform = config.waveform;
 }
 
 } // namespace synth::oscillator
