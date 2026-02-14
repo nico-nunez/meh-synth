@@ -14,14 +14,20 @@ namespace platform_io {
 static void midiCallback(device_io::MidiEvent midiEvent, void *context) {
   auto queue = static_cast<NoteEventQueue *>(context);
 
-  NoteEvent noteEvent{};
-  noteEvent.type = midiEvent.type == device_io::MidiEvent::Type::NoteOn
-                       ? NoteEventType::NoteOn
-                       : NoteEventType::NoteOff;
+  // TODO(nico): handle more than just note on/off events
+  if (midiEvent.type == device_io::MidiEvent::Type::NoteOn ||
+      midiEvent.type == device_io::MidiEvent::Type::NoteOff) {
 
-  noteEvent.midiNote = midiEvent.data1;
-  noteEvent.velocity = midiEvent.data2;
-  queue->push(noteEvent);
+    NoteEvent noteEvent{};
+    noteEvent.type = midiEvent.type == device_io::MidiEvent::Type::NoteOn
+                         ? NoteEventType::NoteOn
+                         : NoteEventType::NoteOff;
+
+    noteEvent.midiNote = midiEvent.data1;
+    noteEvent.velocity = midiEvent.data2;
+
+    queue->push(noteEvent);
+  }
 }
 
 // Handle keyboard events

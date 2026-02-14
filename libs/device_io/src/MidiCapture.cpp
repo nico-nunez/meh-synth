@@ -166,6 +166,7 @@ MIDIEndpointRef getSourceByUniqueID(MIDIUniqueID targetID) {
   return 0;
 }
 
+// ==== Navtive Callback ====
 void midiInputCallback(const MIDIPacketList *packetList, void *refCon, void *) {
   auto *session = static_cast<MidiSession *>(refCon);
 
@@ -183,6 +184,7 @@ void midiInputCallback(const MIDIPacketList *packetList, void *refCon, void *) {
   }
 }
 
+// ==== Helper Functions ====
 int disconnectMidiSourceAtIndex(hMidiSession session, size_t srcIndex) {
   auto src = &session->connectedSources[srcIndex];
 
@@ -245,6 +247,7 @@ MidiSession *setupMidiSession(const MidiConfig &config, MidiCallback callback,
 
   OSStatus status;
 
+  // TODO(nico): add notify callback to allow for hot swappable devices
   status =
       MIDIClientCreate(CFSTR("Meh Device IO"), NULL, NULL, &session->client);
   if (status != noErr) {

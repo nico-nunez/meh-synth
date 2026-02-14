@@ -7,8 +7,8 @@
 
 /*
  * IMPORTANT NOTE(nico):
- * MIDI prefix == Apple defined
- * Midi prefix == Internally defined (aka defined by me)
+ * *MIDI* == Apple defined
+ * *Midi* == Internally defined (aka defined by me)
  */
 
 namespace device_io {

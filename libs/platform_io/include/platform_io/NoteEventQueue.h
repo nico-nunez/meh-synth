@@ -11,9 +11,9 @@ using MIDINote = uint8_t;
 enum class NoteEventType { NoteOff, NoteOn };
 
 struct NoteEvent {
-  NoteEventType type;
-  MIDINote midiNote;
-  uint8_t velocity;
+  NoteEventType type = NoteEventType::NoteOff;
+  MIDINote midiNote = 0;
+  uint8_t velocity = 0;
 };
 
 struct NoteEventQueue {
