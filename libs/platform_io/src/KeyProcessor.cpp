@@ -1,9 +1,28 @@
 #include "platform_io/KeyProcessor.h"
 #include "device_io/KeyCapture.h"
+#include "device_io/MidiCapture.h"
 #include "platform_io/NoteEventQueue.h"
+#include "utils/Logger.h"
+
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
+#include <iostream>
 
 namespace platform_io {
+// Handle MIDI device events
+static void midiCallback(device_io::MidiEvent midiEvent, void *context) {
+  auto queue = static_cast<NoteEventQueue *>(context);
+
+  NoteEvent noteEvent{};
+  noteEvent.type = midiEvent.type == device_io::MidiEvent::Type::NoteOn
+                       ? NoteEventType::NoteOn
+                       : NoteEventType::NoteOff;
+
+  noteEvent.midiNote = midiEvent.data1;
+  noteEvent.velocity = midiEvent.data2;
+  queue->push(noteEvent);
+}
 
 // Handle keyboard events
 static void keyEventCallback(device_io::KeyEvent event, void *userContext) {
@@ -37,6 +56,35 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
 
   // 1. Initialize Cocoa app
   device_io::initKeyCaptureApp();
+
+  // 1a. Setup MIDI on this thread's run loop for now
+  constexpr size_t MAX_MIDI_DEVICES = 16;
+  device_io::MidiSource midiSourceBuffer[MAX_MIDI_DEVICES];
+  size_t numMidiDevices =
+      device_io::getMidiSources(midiSourceBuffer, MAX_MIDI_DEVICES);
+
+  device_io::hMidiSession midiSession = nullptr;
+
+  if (numMidiDevices) {
+    // Display MIDI source options
+    for (size_t i = 0; i < numMidiDevices; i++) {
+      printf("%ld. %s\n", i, midiSourceBuffer[i].displayName);
+    }
+
+    int srcIndex;
+    synth::utils::LogF("Enter midi device number: ");
+    std::cin >> srcIndex;
+
+    midiSession = device_io::setupMidiSession({}, midiCallback, &eventQueue);
+
+    device_io::connectMidiSource(midiSession,
+                                 midiSourceBuffer[srcIndex].uniqueID);
+
+    device_io::startMidiSession(midiSession);
+
+  } else {
+    synth::utils::LogF("No MIDI devices found\n");
+  }
 
   // 2. Create a minimal window (required for local capture without permissions)
   device_io::WindowConfig config = device_io::defaultWindowConfig();
@@ -81,6 +129,11 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
 
   // 5. Cleanup
   device_io::stopKeyCapture();
+
+  if (midiSession) {
+    device_io::stopMidiSession(midiSession);
+    device_io::cleanupMidiSession(midiSession);
+  }
 
   printf("Done.\n");
   return 0;
