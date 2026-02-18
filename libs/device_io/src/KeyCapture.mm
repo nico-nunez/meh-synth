@@ -254,5 +254,23 @@ void stopKeyCapture() {
 
 void runKeyCaptureLoop() { [NSApp run]; }
 
-void stopKeyCaptureLoop() { [NSApp terminate:nil]; }
+void terminateKeyCaptureLoop() { [NSApp terminate:nil]; }
+
+// Alternative if you don't want to immediately exit
+
+void stopKeyCaptureLoop() {
+  [NSApp stop:nil];
+  // Create a "do-nothing" event to wake up the loop so it sees the stop flag
+  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                      location:NSMakePoint(0, 0)
+                                 modifierFlags:0
+                                     timestamp:0
+                                  windowNumber:0
+                                       context:nil
+                                       subtype:0
+                                         data1:0
+                                         data2:0];
+  [NSApp postEvent:event atStart:YES];
+}
+
 } // namespace device_io

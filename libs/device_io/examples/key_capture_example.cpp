@@ -9,8 +9,10 @@
  *     -o key_capture_example
  */
 
-#include "KeyCapture.h"
+#include "device_io/KeyCapture.h"
 #include <cstdio>
+
+namespace device_io {
 
 // Helper to get modifier name from keyCode
 const char *getModifierName(uint16_t keyCode) {
@@ -115,3 +117,5 @@ int main() {
   printf("Done.\n");
   return 0;
 }
+
+} // namespace device_io

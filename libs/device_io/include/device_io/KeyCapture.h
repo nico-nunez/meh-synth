@@ -105,6 +105,9 @@ void stopKeyCapture();
 // Call this from main() after setup
 void runKeyCaptureLoop();
 
+// Request the app to terminate and immediately exit (preferred)
+void terminateKeyCaptureLoop();
+
 // Request the app to stop (breaks out of runKeyCaptureLoop)
 void stopKeyCaptureLoop();
 

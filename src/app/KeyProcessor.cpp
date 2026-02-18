@@ -61,7 +61,7 @@ static void keyEventCallback(device_io::KeyEvent event, void *userContext) {
   // "ESC" to quit
   if (event.type == device_io::KeyEventType::KeyDown && event.keyCode == 53) {
     printf("ESC pressed, stopping...\n");
-    device_io::stopKeyCaptureLoop();
+    device_io::terminateKeyCaptureLoop();
   }
 }
 

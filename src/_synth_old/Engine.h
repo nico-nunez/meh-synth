@@ -21,9 +21,10 @@ public:
   float getDrive() const;
   void setDrive(float driveValue);
 
-  void processEvent(const synth_io::NoteEvent &event);
+  void processNoteEvent(const synth_io::NoteEvent &event);
 
-  void processBlock(float **outputBuffer, size_t numChannels, size_t numFrames);
+  void processAudioBlock(float **outputBuffer, size_t numChannels,
+                         size_t numFrames);
   void processBlockFast(float **outputBuffer, size_t numChannels,
                         size_t numFrames);
 

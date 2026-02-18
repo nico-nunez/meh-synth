@@ -2,6 +2,7 @@
 #include "_synth_old/Oscillator.h"
 
 #include "app/KeyProcessor.h"
+#include "device_io/KeyCapture.h"
 #include "dsp/Waveforms.h"
 #include "synth_io/Events.h"
 #include "synth_io/SynthIO.h"
@@ -12,15 +13,17 @@
 
 #include <audio_io/AudioIO.h>
 #include <csignal>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <thread>
 
+#if !OLD
 static void processParamEvent(synth_io::ParamEvent event, void *myContext) {
-#if OLD
-  auto engine = static_cast<Synth::Engine *>(myContext);
-#else
   auto engine = static_cast<synth::Engine *>(myContext);
   engine->processParamEvent(event);
-#endif
 }
+#endif
 
 static void processNoteEvent(synth_io::NoteEvent event, void *myContext) {
 #if OLD
@@ -41,7 +44,27 @@ static void processAudioBlock(float **outputBuffer, size_t numChannels,
   engine->processAudioBlock(outputBuffer, numChannels, numFrames);
 }
 
+static void getUserInput() {
+  bool isRunning = true;
+  std::string input;
+
+  while (isRunning) {
+    printf("Enter a command: ");
+    std::getline(std::cin, input);
+
+    std::cout << "Parsing: " << input << std::endl;
+
+    if (input == "exit" || input == "quit") {
+      device_io::terminateKeyCaptureLoop();
+      isRunning = false;
+    }
+  }
+}
+
 int main() {
+  std::thread terminalWorker(getUserInput);
+  terminalWorker.detach();
+
   constexpr float SAMPLE_RATE = 48000.0f;
 
   // 1. Setup synth engine
@@ -68,7 +91,10 @@ int main() {
   synth_io::SynthCallbacks sessionCallbacks{};
   sessionCallbacks.processAudioBlock = processAudioBlock;
   sessionCallbacks.processNoteEvent = processNoteEvent;
+
+#if !OLD
   sessionCallbacks.processParamEvent = processParamEvent;
+#endif
 
   synth_io::hSynthSession session =
       synth_io::initSession(sessionConfig, sessionCallbacks, &engine);
@@ -76,6 +102,18 @@ int main() {
   synth_io::startSession(session);
 
   app_input::startKeyInputCapture(session);
+
+  /* This currently unreachable on MacOS due to `terminal:nil` being called
+   * in `stopKeyCaptureLoop()` and immediately exits app.
+   *
+   * This can be updated to `stop:nil`, along with a "dummy-event" to simply
+   * stop the loop and allow this to be reachable
+   *
+   * Currently this is fine since the OS cleans up when the app exits anyways.
+   * However, if anything non-cleanup needs to occur (like auto-save) then
+   * changes need to be made.
+   */
+  printf("Goodbye and thanks for playing :)\n");
 
   synth_io::stopSession(session);
   synth_io::disposeSession(session);

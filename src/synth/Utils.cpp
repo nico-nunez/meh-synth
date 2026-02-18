@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include "Types.h"
 
+#include <cfloat>
 #include <cmath>
 
 namespace synth::utils {
@@ -24,7 +25,7 @@ float dBtoLinear(float dB) { return std::pow(10.0f, dB / 20.0f); }
 
 float linearToDb(float linear) {
   if (linear <= 0.0f)
-    return -INFINITY;
+    return -FLT_MAX;
   return 20.0f * std::log10f(linear);
 }
 

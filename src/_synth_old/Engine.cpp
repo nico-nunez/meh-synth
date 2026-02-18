@@ -49,7 +49,7 @@ void Engine::setDrive(float newValue) {
   mInvNormDrive = 1.0f / tanh(mDrive);
 }
 
-void Engine::processEvent(const synth_io::NoteEvent &event) {
+void Engine::processNoteEvent(const synth_io::NoteEvent &event) {
   if (!event.midiNote)
     return;
 
@@ -71,8 +71,8 @@ void Engine::processEvent(const synth_io::NoteEvent &event) {
   }
 }
 
-void Engine::processBlock(float **outputBuffer, size_t numChannels,
-                          size_t numFrames) {
+void Engine::processAudioBlock(float **outputBuffer, size_t numChannels,
+                               size_t numFrames) {
   // NOTE(nico): Non-Interleaved for now
   for (size_t frame = 0; frame < numFrames; frame++) {
     float sampleValue = 0;
