@@ -3,7 +3,8 @@
 
 #include "Oscillator.h"
 #include "Voice.h"
-#include "platform_io/NoteEventQueue.h"
+
+#include "synth_io/Events.h"
 
 namespace Synth {
 
@@ -20,7 +21,7 @@ public:
   float getDrive() const;
   void setDrive(float driveValue);
 
-  void processEvent(const platform_io::NoteEvent &event);
+  void processEvent(const synth_io::NoteEvent &event);
 
   void processBlock(float **outputBuffer, size_t numChannels, size_t numFrames);
   void processBlockFast(float **outputBuffer, size_t numChannels,

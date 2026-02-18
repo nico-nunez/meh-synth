@@ -1,20 +1,12 @@
 #pragma once
 
+#include "synth_io/Events.h"
+
 #include <atomic>
 #include <cstddef>
-#include <cstdint>
 #include <cstdio>
 
-namespace platform_io {
-using MIDINote = uint8_t;
-
-enum class NoteEventType { NoteOff, NoteOn };
-
-struct NoteEvent {
-  NoteEventType type = NoteEventType::NoteOff;
-  MIDINote midiNote = 0;
-  uint8_t velocity = 0;
-};
+namespace synth_io {
 
 struct NoteEventQueue {
   // NOTE(nico): SIZE value need to be power of to use bitmasking for wrapping
@@ -34,4 +26,4 @@ struct NoteEventQueue {
   void printQueue();
 };
 
-} // namespace platform_io
+} // namespace synth_io

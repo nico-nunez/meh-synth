@@ -1,31 +1,38 @@
 #pragma once
 
+#include "ParamBindings.h"
 #include "VoicePool.h"
 
 #include "dsp/Waveforms.h"
 
-#include "platform_io/AudioProcessor.h"
-#include "platform_io/NoteEventQueue.h"
+#include "synth_io/Events.h"
+#include "synth_io/SynthIO.h"
 
 #include <cstdint>
 
 namespace synth {
-using NoteEvent = platform_io::NoteEvent;
+using NoteEvent = synth_io::NoteEvent;
+using ParamEvent = synth_io::ParamEvent;
 
 using VoicePool = voices::VoicePool;
 using VoiceConfig = voices::VoicePoolConfig;
+
 using WaveformType = dsp::waveforms::WaveformType;
 
+using ParamBinding = param_bindings::ParamBinding;
+using ParamID = param_bindings::ParamID;
+
 struct EngineConfig : VoiceConfig {
-  float sampleRate = platform_io::DEFAULT_SAMPLE_RATE;
-  uint32_t numFrames = platform_io::DEFAULT_FRAMES;
+  float sampleRate = synth_io::DEFAULT_SAMPLE_RATE;
+  uint32_t numFrames = synth_io::DEFAULT_FRAMES;
 };
 
 struct Engine {
-  static constexpr uint32_t NUM_FRAMES = platform_io::DEFAULT_FRAMES;
-  float sampleRate = platform_io::DEFAULT_SAMPLE_RATE;
+  static constexpr uint32_t NUM_FRAMES = synth_io::DEFAULT_FRAMES;
+  float sampleRate = synth_io::DEFAULT_SAMPLE_RATE;
 
   VoicePool voicePool;
+  ParamBinding paramBindings[ParamID::PARAM_COUNT];
 
   // TODO(nico): this probably needs to live on heap
   // since the number of frames won't be known at compile time
@@ -33,8 +40,10 @@ struct Engine {
 
   uint32_t noteCount = 0;
 
-  void processEvent(const NoteEvent &event);
-  void processBlock(float **outputBuffer, size_t numChannels, size_t numFrames);
+  void processNoteEvent(const NoteEvent &event);
+  void processParamEvent(const ParamEvent &event);
+  void processAudioBlock(float **outputBuffer, size_t numChannels,
+                         size_t numFrames);
 };
 
 Engine createEngine(const EngineConfig &config);

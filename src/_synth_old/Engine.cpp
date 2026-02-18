@@ -2,7 +2,7 @@
 #include "Oscillator.h"
 #include "Voice.h"
 
-#include "platform_io/NoteEventQueue.h"
+#include "synth_io/Events.h"
 
 #include <cmath>
 #include <cstddef>
@@ -49,11 +49,11 @@ void Engine::setDrive(float newValue) {
   mInvNormDrive = 1.0f / tanh(mDrive);
 }
 
-void Engine::processEvent(const platform_io::NoteEvent &event) {
+void Engine::processEvent(const synth_io::NoteEvent &event) {
   if (!event.midiNote)
     return;
 
-  if (event.type == platform_io::NoteEventType::NoteOff) {
+  if (event.type == synth_io::NoteEventType::NoteOff) {
     // Find and turn off Voice playing the note
     for (auto &voice : mVoices) {
       if (voice.shouldStop(event.midiNote)) {

@@ -1,53 +1,63 @@
-#include "platform_io/KeyProcessor.h"
+#include "KeyProcessor.h"
+
+#include "synth_io/SynthIO.h"
+#include "utils/Logger.h"
+
 #include "device_io/KeyCapture.h"
 #include "device_io/MidiCapture.h"
-#include "platform_io/NoteEventQueue.h"
-#include "utils/Logger.h"
+#include "synth_io/Events.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
 
-namespace platform_io {
+namespace app_input {
+using MidiEvent = device_io::MidiEvent;
+
+using NoteEvent = synth_io::NoteEvent;
+using NoteEventType = synth_io::NoteEventType;
+
 // Handle MIDI device events
-static void midiCallback(device_io::MidiEvent midiEvent, void *context) {
-  auto queue = static_cast<NoteEventQueue *>(context);
+static void midiCallback(MidiEvent midiEvent, void *context) {
+  auto sessionPtr = static_cast<hSynthSession>(context);
 
   // TODO(nico): handle more than just note on/off events
-  if (midiEvent.type == device_io::MidiEvent::Type::NoteOn ||
-      midiEvent.type == device_io::MidiEvent::Type::NoteOff) {
+  switch (midiEvent.type) {
+  case MidiEvent::Type::NoteOn:
+    synth_io::noteOn(sessionPtr, midiEvent.data1, midiEvent.data2);
+    break;
+  case MidiEvent::Type::NoteOff:
+    synth_io::noteOff(sessionPtr, midiEvent.data1, midiEvent.data2);
+    break;
 
-    NoteEvent noteEvent{};
-    noteEvent.type = midiEvent.type == device_io::MidiEvent::Type::NoteOn
-                         ? NoteEventType::NoteOn
-                         : NoteEventType::NoteOff;
-
-    noteEvent.midiNote = midiEvent.data1;
-    noteEvent.velocity = midiEvent.data2;
-
-    queue->push(noteEvent);
+  default:
+    break;
   }
 }
 
 // Handle keyboard events
 static void keyEventCallback(device_io::KeyEvent event, void *userContext) {
-  auto ctx = static_cast<NoteEventQueue *>(userContext);
+  auto sessionPtr = static_cast<hSynthSession>(userContext);
 
   // Currently 'z' & 'x' control octive up/down
   // Need to ignore keyup (note off) for now
   if ((event.character == 120 || event.character == 122) &&
       event.type == device_io::KeyEventType::KeyUp) {
+
     return;
-  } else if (event.type == device_io::KeyEventType::KeyDown) {
+
     // Note "ON" event
-    ctx->push(
-        NoteEvent{NoteEventType::NoteOn, asciiToMidi(event.character), 127});
-  } else if (event.type == device_io::KeyEventType::KeyUp) {
+  } else if (event.type == device_io::KeyEventType::KeyDown) {
+
+    synth_io::noteOn(sessionPtr, asciiToMidi(event.character), 127);
+
     // Note "OFF" event
-    ctx->push(
-        NoteEvent{NoteEventType::NoteOff, asciiToMidi(event.character), 127});
+  } else if (event.type == device_io::KeyEventType::KeyUp) {
+
+    synth_io::noteOff(sessionPtr, asciiToMidi(event.character), 127);
   }
+
   // "ESC" to quit
   if (event.type == device_io::KeyEventType::KeyDown && event.keyCode == 53) {
     printf("ESC pressed, stopping...\n");
@@ -55,7 +65,7 @@ static void keyEventCallback(device_io::KeyEvent event, void *userContext) {
   }
 }
 
-int startKeyInputCapture(NoteEventQueue &eventQueue) {
+int startKeyInputCapture(hSynthSession sessionPtr) {
   printf("KeyCapture Example\n");
   printf("------------------\n");
   printf("Press keys to see events. ESC to quit.\n\n");
@@ -81,7 +91,7 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
     synth::utils::LogF("Enter midi device number: ");
     std::cin >> srcIndex;
 
-    midiSession = device_io::setupMidiSession({}, midiCallback, &eventQueue);
+    midiSession = device_io::setupMidiSession({}, midiCallback, sessionPtr);
 
     device_io::connectMidiSource(midiSession,
                                  midiSourceBuffer[srcIndex].uniqueID);
@@ -107,7 +117,7 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
   // focused)
   //    Change to CaptureMode::Global if you need capture when not focused
   //    Change to CaptureMode::Both if you want both behaviors
-  if (!startKeyCapture(keyEventCallback, &eventQueue,
+  if (!startKeyCapture(keyEventCallback, sessionPtr,
                        device_io::CaptureMode::Local)) {
     printf("Failed to start key capture\n");
     return 1;
@@ -145,11 +155,11 @@ int startKeyInputCapture(NoteEventQueue &eventQueue) {
   return 0;
 }
 
-MIDINote asciiToMidi(char key) {
+uint8_t asciiToMidi(char key) {
   static constexpr uint8_t SEMITONES = 12;
   static uint8_t octiveOffset = 0;
 
-  MIDINote midiKey = 0;
+  uint8_t midiKey = 0;
 
   // Change Octive
   if (key == 122) { // ('z')
@@ -221,4 +231,4 @@ MIDINote asciiToMidi(char key) {
   return midiKey + (octiveOffset * SEMITONES);
 }
 
-} // namespace platform_io
+} // namespace app_input

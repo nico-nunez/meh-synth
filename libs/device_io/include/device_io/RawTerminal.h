@@ -1,12 +1,11 @@
 #pragma once
 
-#include "platform_io/NoteEventQueue.h"
-
 namespace device_io {
 struct NoteEventQueue;
 
 void enableRawTerminal();
 void disableRawTerminal();
 
-void captureKeyboardInputs(platform_io::NoteEventQueue &eventQueue);
+// TODO(nico): this should probably be a callback with void* userContext
+void captureKeyboardInputs();
 } // namespace device_io

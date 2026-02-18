@@ -1,9 +1,10 @@
 #include "_synth_old/Engine.h"
 #include "_synth_old/Oscillator.h"
 
+#include "app/KeyProcessor.h"
 #include "dsp/Waveforms.h"
-#include "platform_io/AudioProcessor.h"
-#include "platform_io/NoteEventQueue.h"
+#include "synth_io/Events.h"
+#include "synth_io/SynthIO.h"
 
 #include "synth/Engine.h"
 #include "synth/Oscillator.h"
@@ -12,24 +13,32 @@
 #include <audio_io/AudioIO.h>
 #include <csignal>
 
-static void processEvent(platform_io::NoteEvent event, void *myContext) {
+static void processParamEvent(synth_io::ParamEvent event, void *myContext) {
 #if OLD
   auto engine = static_cast<Synth::Engine *>(myContext);
 #else
   auto engine = static_cast<synth::Engine *>(myContext);
+  engine->processParamEvent(event);
 #endif
-
-  engine->processEvent(event);
 }
 
-static void processBlock(float **outputBuffer, size_t numChannels,
-                         size_t numFrames, void *myContext) {
+static void processNoteEvent(synth_io::NoteEvent event, void *myContext) {
 #if OLD
   auto engine = static_cast<Synth::Engine *>(myContext);
 #else
   auto engine = static_cast<synth::Engine *>(myContext);
 #endif
-  engine->processBlock(outputBuffer, numChannels, numFrames);
+
+  engine->processNoteEvent(event);
+}
+static void processAudioBlock(float **outputBuffer, size_t numChannels,
+                              size_t numFrames, void *myContext) {
+#if OLD
+  auto engine = static_cast<Synth::Engine *>(myContext);
+#else
+  auto engine = static_cast<synth::Engine *>(myContext);
+#endif
+  engine->processAudioBlock(outputBuffer, numChannels, numFrames);
 }
 
 int main() {
@@ -53,9 +62,23 @@ int main() {
 #endif
 
   // 2. Setup audio_io
-  platform_io::AudioConfig config{};
-  config.sampleRate = static_cast<uint32_t>(SAMPLE_RATE);
+  synth_io::SessionConfig sessionConfig{};
+  sessionConfig.sampleRate = static_cast<uint32_t>(SAMPLE_RATE);
 
-  platform_io::setupAudioProcess(config, processEvent, processBlock, &engine);
+  synth_io::SynthCallbacks sessionCallbacks{};
+  sessionCallbacks.processAudioBlock = processAudioBlock;
+  sessionCallbacks.processNoteEvent = processNoteEvent;
+  sessionCallbacks.processParamEvent = processParamEvent;
+
+  synth_io::hSynthSession session =
+      synth_io::initSession(sessionConfig, sessionCallbacks, &engine);
+
+  synth_io::startSession(session);
+
+  app_input::startKeyInputCapture(session);
+
+  synth_io::stopSession(session);
+  synth_io::disposeSession(session);
+
   return 0;
 }

@@ -4,7 +4,8 @@
 #include "Envelope.h"
 #include "Oscillator.h"
 
-#include "platform_io/NoteEventQueue.h"
+#include "synth_io/Events.h"
+#include <cstdint>
 
 namespace Synth {
 struct NoteEvent;
@@ -14,7 +15,7 @@ public:
   Voice(OscillatorType oscType = OscillatorType::Saw,
         float sampleRate = DEFAULT_SAMPLE_RATE);
 
-  void noteOn(const platform_io::NoteEvent &event);
+  void noteOn(const synth_io::NoteEvent &event);
   void noteOff();
 
   float process();
@@ -25,12 +26,12 @@ public:
   void setOscillatorType(OscillatorType oscType);
   void setSampleRate(float sampleRate);
 
-  bool shouldStop(platform_io::MIDINote midiNote);
+  bool shouldStop(uint8_t midiNote);
 
 private:
   Oscillator mOscillator;
   Envelope mEnvelope;
-  platform_io::MIDINote mMidiNote;
+  uint8_t mMidiNote;
   bool mIsActive = false;
 };
 

@@ -1,9 +1,9 @@
-#include "platform_io/NoteEventQueue.h"
+#include "ParamEventQueue.h"
 #include <cstddef>
 
-namespace platform_io {
+namespace synth_io {
 
-bool NoteEventQueue::push(const NoteEvent &event) {
+bool ParamEventQueue::push(const ParamEvent &event) {
   size_t currentIndex = writeIndex.load();
   size_t nextIndex = (currentIndex + 1) & WRAP;
 
@@ -16,7 +16,7 @@ bool NoteEventQueue::push(const NoteEvent &event) {
   return true;
 }
 
-bool NoteEventQueue::pop(NoteEvent &event) {
+bool ParamEventQueue::pop(ParamEvent &event) {
   size_t currentIndex = readIndex.load();
 
   if (currentIndex == writeIndex.load())
@@ -28,14 +28,13 @@ bool NoteEventQueue::pop(NoteEvent &event) {
   return true;
 }
 
-void NoteEventQueue::printEvent(NoteEvent &event) {
+void ParamEventQueue::printEvent(ParamEvent &event) {
   printf("==== Event ====\n");
-  printf("type: %d\n", (int)event.type);
-  printf("midi: %d\n", event.midiNote);
-  printf("velocity: %d\n", event.velocity);
+  printf("paramID: %d\n", (int)event.id);
+  printf("value: %f\n", event.value);
 }
 
-void NoteEventQueue::printQueue() {
+void ParamEventQueue::printQueue() {
   size_t currentIndex = readIndex.load();
   size_t endIndex = writeIndex.load();
 
@@ -46,4 +45,4 @@ void NoteEventQueue::printQueue() {
   }
 }
 
-} // namespace platform_io
+} // namespace synth_io

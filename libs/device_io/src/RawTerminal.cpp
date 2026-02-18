@@ -1,7 +1,5 @@
 #include "device_io/RawTerminal.h"
-#include "platform_io/KeyProcessor.h"
 
-#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <stdio.h>
@@ -33,7 +31,7 @@ void disableRawTerminal() {
   tcsetattr(STDERR_FILENO, TCSAFLUSH, &orig_termios);
 }
 
-void captureKeyboardInputs(platform_io::NoteEventQueue &eventQueue) {
+void captureKeyboardInputs() {
   bool running = true;
   char c;
 
@@ -45,11 +43,7 @@ void captureKeyboardInputs(platform_io::NoteEventQueue &eventQueue) {
         running = false;
         printf("Raw mode disable\r\n");
       } else {
-        uint8_t midiNote{platform_io::asciiToMidi(c)};
-        if (midiNote) {
-          eventQueue.push(platform_io::NoteEvent{
-              platform_io::NoteEventType::NoteOn, midiNote, 100});
-        }
+        // TODO(nico): this will be for params
       }
     }
   }
