@@ -1,5 +1,8 @@
 #include "Utils.h"
-#include "Types.h"
+
+#include "synth/Types.h"
+
+#include "dsp/Math.h"
 
 #include <cfloat>
 #include <cmath>
@@ -8,12 +11,10 @@ namespace synth::utils {
 
 // ==== MIDI/Frequency Conversion Helpers ====
 float semitoneToFrequency(int semitones) {
-  // Pre-caluated value of 2^(1/12)
-  static constexpr float SEMITONE_RATIO = 1.059463094f;
-
   // Cast `semitones` to float since std::pow is optimized for floats(32-bit)
-  return ROOT_NOTE_FREQ * static_cast<float>(std::pow(
-                              SEMITONE_RATIO, static_cast<float>(semitones)));
+  return ROOT_NOTE_FREQ *
+         static_cast<float>(std::pow(dsp::math::SEMITONE_RATIO,
+                                     static_cast<float>(semitones)));
 }
 
 float midiToFrequency(int midiValue) {

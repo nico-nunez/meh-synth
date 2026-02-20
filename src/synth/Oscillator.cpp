@@ -1,5 +1,6 @@
 #include "Oscillator.h"
-#include "Utils.h"
+
+#include "utils/Utils.h"
 
 #include <cmath>
 #include <cstdint>

@@ -1,16 +1,11 @@
-#include "_synth_old/Engine.h"
-#include "_synth_old/Oscillator.h"
-
 #include "utils/InputProcessor.h"
 #include "utils/KeyProcessor.h"
 
 #include "device_io/KeyCapture.h"
-#include "dsp/Waveforms.h"
 #include "synth_io/Events.h"
 #include "synth_io/SynthIO.h"
 
 #include "synth/Engine.h"
-#include "synth/Oscillator.h"
 #include "synth/VoicePool.h"
 
 #include <audio_io/AudioIO.h>
@@ -21,29 +16,19 @@
 #include <string>
 #include <thread>
 
-#if !OLD
 static void processParamEvent(synth_io::ParamEvent event, void *myContext) {
   auto engine = static_cast<synth::Engine *>(myContext);
   engine->processParamEvent(event);
 }
-#endif
 
 static void processNoteEvent(synth_io::NoteEvent event, void *myContext) {
-#if OLD
-  auto engine = static_cast<Synth::Engine *>(myContext);
-#else
   auto engine = static_cast<synth::Engine *>(myContext);
-#endif
-
   engine->processNoteEvent(event);
 }
+
 static void processAudioBlock(float **outputBuffer, size_t numChannels,
                               size_t numFrames, void *myContext) {
-#if OLD
-  auto engine = static_cast<Synth::Engine *>(myContext);
-#else
   auto engine = static_cast<synth::Engine *>(myContext);
-#endif
   engine->processAudioBlock(outputBuffer, numChannels, numFrames);
 }
 
