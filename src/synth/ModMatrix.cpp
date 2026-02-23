@@ -5,6 +5,7 @@
 #include <cstring>
 
 namespace synth::mod_matrix {
+// ===== Route(s) Management ========
 bool addRoute(ModMatrix &matrix, ModSrc src, ModDest dest, float amount) {
   if (matrix.count >= MAX_MOD_ROUTES)
     return false;
@@ -41,7 +42,6 @@ bool removeRoute(ModMatrix &matrix, uint8_t index) {
   return true;
 }
 
-// TODO(nico): is zeroing out necessary?
 bool clear(ModMatrix &matrix) {
   for (auto &route : matrix.routes) {
     route.src = ModSrc::NoSrc;
@@ -51,6 +51,23 @@ bool clear(ModMatrix &matrix) {
 
   matrix.count = 0;
   return true;
+}
+
+// ====== Steps Management =======
+void clearModDestSteps(ModMatrix &matrix) {
+  for (uint8_t d = 0; d < ModDest::DEST_COUNT; d++) {
+    for (uint8_t v = 0; v < MAX_VOICES; v++) {
+      matrix.destStepValues[d][v] = 0;
+    }
+  }
+}
+
+void setModDestStep(ModMatrix &matrix, ModDest dest, uint32_t voiceIndex,
+                    float invNumSamples) {
+  matrix.destStepValues[dest][voiceIndex] =
+      (matrix.destValues[dest][voiceIndex] -
+       matrix.prevDestValues[dest][voiceIndex]) *
+      invNumSamples;
 }
 
 // ==== Parsing Helpers ====
@@ -70,20 +87,5 @@ ModDest modDestFromString(const char *input) {
   }
   return ModDest::NoDest;
 };
-
-void clearModDestSteps(ModMatrix &matrix) {
-  for (uint8_t d = 0; d < ModDest::DEST_COUNT; d++) {
-    for (uint8_t v = 0; v < MAX_VOICES; v++) {
-      matrix.destStepValues[d][v] = 0;
-    }
-  }
-}
-void setModDestStep(ModMatrix &matrix, ModDest dest, uint32_t voiceIndex,
-                    float invNumSamples) {
-  matrix.destStepValues[dest][voiceIndex] =
-      (matrix.destValues[dest][voiceIndex] -
-       matrix.prevDestValues[dest][voiceIndex]) *
-      invNumSamples;
-}
 
 } // namespace synth::mod_matrix

@@ -340,17 +340,30 @@ void processVoices(VoicePool &pool, float *output, size_t numSamples) {
       // interpolate modulation values and mix
       float mixedOscs = processAndMixOscillators(pool, voiceIndex, sampleIndex);
 
-      // Process SVF Filter
-      float filtered = filters::processSVFilter(
-          pool.svf, mixedOscs, voiceIndex,
-          pool.modMatrix.destValues[ModDest::SVFCutoff][voiceIndex],
-          pool.invSampleRate);
+      // Process SVF with modulation
+      float svfModCutoff = filters::computeEffectiveCutoff(
+          pool.svf.cutoff,
+          pool.modMatrix.destValues[ModDest::SVFCutoff][voiceIndex]);
+      float svfModResonance =
+          pool.svf.resonance +
+          pool.modMatrix.destValues[ModDest::SVFResonance][voiceIndex];
 
+      // Process SVF Filter
+      float filtered = filters::processSVFilter(pool.svf, mixedOscs, voiceIndex,
+                                                svfModCutoff, svfModResonance,
+                                                pool.invSampleRate);
+
+      // Process Ladder with modulation
+      float ladderModCutoff = filters::computeEffectiveCutoff(
+          pool.ladder.cutoff,
+          pool.modMatrix.destValues[ModDest::LadderCutoff][voiceIndex]);
+      float ladderModResonance =
+          pool.ladder.resonance +
+          pool.modMatrix.destValues[ModDest::LadderResonance][voiceIndex];
       // Process Ladder Filter
       filtered = filters::processLadderFilter(
-          pool.ladder, filtered, voiceIndex,
-          pool.modMatrix.destValues[ModDest::LadderCutoff][voiceIndex],
-          pool.invSampleRate);
+          pool.ladder, filtered, voiceIndex, ladderModCutoff,
+          ladderModResonance, pool.invSampleRate);
 
       // TODO(nico): Implement Saturator
       // ==== Apply saturation ====

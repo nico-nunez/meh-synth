@@ -48,21 +48,31 @@ struct LadderFilter {
 
 // ==== FILTER HELPERS ====
 
+float computeEffectiveCutoff(float baseCutoff, float cutoffModOctaves);
+
 // ==== SVF Helpers ====
 void initSVFilter(SVFilter &filter, size_t voiceIndex);
 
 void updateSVFCoefficients(SVFilter &filter, float invSampleRate);
 
+// No modulation parameters
+float processSVFilter(SVFilter &filter, float input, uint32_t voiceIndex);
+
+// With modulation parameters
 float processSVFilter(SVFilter &filter, float input, uint32_t voiceIndex,
-                      float cutoffModOctaves, float invSampleRate);
+                      float cutoffHz, float resonance, float invSampleRate);
 
 // ==== Ladder Helpers ====
 void initLadderFilter(LadderFilter &filter, size_t voiceIndex);
 
 void updateLadderCoefficient(LadderFilter &filter, float invSampleRate);
 
+// No modulation parameters
 float processLadderFilter(LadderFilter &filter, float input,
-                          uint32_t voiceIndex, float cutoffModOctaves,
+                          uint32_t voiceIndex);
+// With modulation parameters
+float processLadderFilter(LadderFilter &filter, float input,
+                          uint32_t voiceIndex, float cutoffHz, float resonance,
                           float invSampleRate);
 
 } // namespace synth::filters
