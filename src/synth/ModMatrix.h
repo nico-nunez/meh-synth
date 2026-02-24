@@ -3,6 +3,7 @@
 #include "synth/Types.h"
 
 #include <cstdint>
+#include <sstream>
 
 namespace synth::mod_matrix {
 // ==== Modulation Sources ====
@@ -81,7 +82,7 @@ struct ModMatrix {
 bool addRoute(ModMatrix &matrix, ModSrc src, ModDest dest, float amount);
 bool addRoute(ModMatrix &matrix, const ModRoute &route);
 bool removeRoute(ModMatrix &matrix, uint8_t index);
-void clearRoutes(ModMatrix &matrix);
+bool clearRoutes(ModMatrix &matrix);
 
 void clearPrevModDests(ModMatrix &matrix);
 void clearModDestSteps(ModMatrix &matrix);
@@ -140,10 +141,5 @@ inline constexpr ModDestMapping
         {"subOsc.mixLevel", ModDest::SubOscMix},
 };
 
-ModSrc modSrcFromString(const char *str);
-ModDest modDestFromString(const char *str);
-
-const char *modSrcToString(ModSrc src);
-const char *modDestToString(ModDest dst);
-
+void parseModCommand(std::istringstream &iss, ModMatrix &modMatrix);
 } // namespace synth::mod_matrix

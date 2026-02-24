@@ -115,7 +115,7 @@ int startKeyInputCapture(hSynthSession sessionPtr,
 
   // 2. Create a minimal window (required for local capture without permissions)
   device_io::WindowConfig config = device_io::defaultWindowConfig();
-  config.title = "Super Synth";
+  config.title = "Meh Synth";
   config.width = 800;
   config.height = 500;
 
@@ -137,7 +137,7 @@ int startKeyInputCapture(hSynthSession sessionPtr,
   const char *windowText =
       "Super Synth\n\n"
       "Press 'z' to go down an octive and 'c' to go up an octive\n\n"
-      "================= Keyboard Layout =================\n"
+      "================= Keyboard Layout ================\n"
       "|    |   |   |   |   |   |   |   |   |   |   |   |\n"
       "|    |   |   |   |   |   |   |   |   |   |   |   |\n"
       "|    | w |   | E |   |   | T |   | Y |   | U |   |\n"

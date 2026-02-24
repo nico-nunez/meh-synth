@@ -1,7 +1,10 @@
 # Project Context
 
 ## About This Project
-- **Production-quality synthesizer development** - Building a professional-grade audio synthesizer using C++ and modern DSP techniques
+- **Production-quality wavetable synthesizer** - Building a professional-grade synthesizer rivaling Serum and Vital in capability and sound quality
+- **Vision: one-stop-shop for sound design** — a single instrument configurable via presets to cover techno, drums, pads, industrial, drones, leads, and beyond. Users load a preset and get a sound; the synthesis complexity is abstracted away.
+- **Wavetable-first architecture** — oscillators are wavetable oscillators (like Vital/Serum), enabling FM synthesis, wavetable scanning, and a far wider sonic palette than polyblep alone
+- **Standalone desktop application** — primary target is a standalone app that does not require a DAW. CoreAudio + CoreMIDI + Lua scripting + preset system = complete instrument.
 - Focus: Production patterns, performance, SIMD-ready architecture, real-time audio constraints
 - Learning path: Direct implementation of industry-standard techniques, not educational simplifications
 

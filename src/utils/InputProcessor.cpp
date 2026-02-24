@@ -1,5 +1,7 @@
 #include "InputProcessor.h"
 
+#include "synth/Engine.h"
+#include "synth/ModMatrix.h"
 #include "synth/ParamBindings.h"
 
 #include "synth_io/SynthIO.h"
@@ -16,6 +18,7 @@
 namespace synth::utils {
 namespace s_io = synth_io;
 
+namespace mm = mod_matrix;
 namespace pb = param::bindings;
 
 // ==== Internal Helpers ====
@@ -136,6 +139,9 @@ void parseCommand(const std::string &line, Engine &engine,
   } else if (cmd == "clear") {
     // Clear console
     system("clear");
+
+  } else if (cmd == "mod") {
+    mm::parseModCommand(iss, engine.voicePool.modMatrix);
 
     // Invalid command
   } else if (cmd != "quit") {
